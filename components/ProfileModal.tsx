@@ -193,7 +193,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                 {/* 연락처 및 소셜 */}
                 <div className="space-y-4 pt-4 border-t border-gray-100">
                   <h3 className="text-sm font-bold text-[#4A90E2] uppercase tracking-wider">연락처 및 소셜</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-[#333333]/60 mb-1">Email</label>
                       <input 
@@ -209,15 +209,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                         type="url" 
                         value={formData.github || ''}
                         onChange={(e) => setFormData({...formData, github: e.target.value})}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-[#333333]/60 mb-1">LinkedIn URL</label>
-                      <input 
-                        type="url" 
-                        value={formData.linkedin || ''}
-                        onChange={(e) => setFormData({...formData, linkedin: e.target.value})}
                         className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
                       />
                     </div>

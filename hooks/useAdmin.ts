@@ -80,7 +80,6 @@ export const useAdmin = () => {
     about: "안녕하세요, 저는 문제를 구조적으로 해결하는 것을 좋아하는 개발자 이동주입니다. \n\n복잡한 요구사항을 명확한 시스템으로 변환하고, 사용자에게 실질적인 가치를 제공하는 제품을 만드는 데 열정을 가지고 있습니다. \n\n새로운 기술을 배우는 것을 두려워하지 않으며, 팀원들과의 소통을 통해 함께 성장하는 문화를 지향합니다.",
     email: "contact@example.com",
     github: "https://github.com",
-    linkedin: "https://linkedin.com",
     education: [
       { school: "Computer Science Univ", degree: "Bachelor of Science", period: "2018 - 2022" }
     ],
@@ -109,7 +108,12 @@ export const useAdmin = () => {
     tags: [],
     image: '',
     links: [{ label: 'GitHub', url: '', description: '' }],
-    qna: []
+    qna: [
+      { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
+      { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
+      { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
+      { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
+    ]
   });
 
   // 폼 상태 관리 (프로필)
@@ -146,7 +150,12 @@ export const useAdmin = () => {
         ...project,
         image: project.image || '',
         links: project.links && project.links.length > 0 ? project.links : [{ label: 'GitHub', url: '', description: '' }],
-        qna: project.qna && project.qna.length > 0 ? project.qna : []
+        qna: project.qna && project.qna.length > 0 ? project.qna : [
+          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
+          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
+          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
+          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
+        ]
       });
     } else {
       setEditingProject(null);
@@ -159,7 +168,12 @@ export const useAdmin = () => {
         tags: [],
         image: '',
         links: [{ label: 'GitHub', url: '', description: '' }],
-        qna: []
+        qna: [
+          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
+          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
+          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
+          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
+        ]
       });
     }
     setIsModalOpen(true);
@@ -218,7 +232,7 @@ export const useAdmin = () => {
     setFormData({ ...formData, links: newLinks });
   };
 
-  // 프로젝트 Q&A 핸들러 (수정됨: 질문 텍스트를 인자로 받을 수 있음)
+  // 프로젝트 Q&A 핸들러
   const addQna = (questionText: string = 'Q. ') => {
     setFormData({
       ...formData,

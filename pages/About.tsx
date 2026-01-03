@@ -1,7 +1,7 @@
 // 자기소개 페이지 컴포넌트
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Github, Linkedin, Award, GraduationCap, Code2, User } from 'lucide-react';
+import { Mail, Github, Award, GraduationCap, Code2, User } from 'lucide-react';
 import { useAdmin } from '../hooks/useAdmin'; // 임시로 데이터 가져오기 위해 사용
 import Navbar from '../components/Navbar';
 import Contact from '../components/Contact';
@@ -78,11 +78,6 @@ const About: React.FC = () => {
                 {profile.github && (
                   <a href={profile.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-[#333333] rounded-full hover:bg-gray-200 transition-colors">
                     <Github size={18} /> GitHub
-                  </a>
-                )}
-                {profile.linkedin && (
-                  <a href={profile.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-[#0077B5] rounded-full hover:bg-blue-100 transition-colors">
-                    <Linkedin size={18} /> LinkedIn
                   </a>
                 )}
               </motion.div>

@@ -27,7 +27,7 @@ export interface Profile {
   image?: string; // 프로필 사진 URL
   email: string;
   github?: string;
-  linkedin?: string;
+  // linkedin 필드 삭제됨
   
   // 학력
   education: {
