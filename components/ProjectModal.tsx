@@ -13,10 +13,19 @@ interface ProjectModalProps {
   onAddLink: () => void;
   onRemoveLink: (index: number) => void;
   onUpdateLink: (index: number, field: 'label' | 'url' | 'description', value: string) => void;
-  onAddQna: () => void;
+  onAddQna: (questionText?: string) => void; // 인자 타입 변경
   onRemoveQna: (index: number) => void;
   onUpdateQna: (index: number, field: 'question' | 'answer', value: string) => void;
 }
+
+const recommendedQuestions = [
+  'Q. 어떤 프로젝트인가요?',
+  'Q. 나의 역할은 무엇이었나요?',
+  'Q. 왜 이 기술을 사용했나요?',
+  'Q. 가장 어려웠던 점과 해결 방법은?',
+  'Q. 이 프로젝트를 통해 무엇을 배웠나요?',
+  'Q. 아쉬운 점이나 향후 개선 계획은?'
+];
 
 const ProjectModal: React.FC<ProjectModalProps> = ({
   isOpen,
@@ -40,7 +49,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // 파일을 Base64 문자열로 변환하여 이미지 URL로 사용
         setFormData({ ...formData, image: reader.result as string });
       };
       reader.readAsDataURL(file);
@@ -129,7 +137,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                     <label className="block text-sm font-medium text-[#333333] mb-2">대표 이미지</label>
                     
                     <div className="flex flex-col gap-4">
-                      {/* 탭 버튼 (URL vs Upload) - 간단하게 구현 */}
                       <div className="flex gap-2">
                         <div className="flex-1">
                           <div className="relative">
@@ -163,7 +170,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                         </div>
                       </div>
 
-                      {/* Image Preview */}
                       <div className="w-full h-48 bg-gray-50 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center relative group">
                         {formData.image ? (
                           <>
@@ -264,17 +270,34 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
                 {/* Q&A Section */}
                 <div className="space-y-4 pt-4 border-t border-gray-100">
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-4">
                     <h3 className="text-sm font-bold text-[#4A90E2] uppercase tracking-wider">Q&A 인터뷰</h3>
                     <button 
                       type="button"
-                      onClick={onAddQna}
+                      onClick={() => onAddQna()}
                       className="text-sm text-[#4A90E2] font-medium flex items-center gap-1 hover:underline"
                     >
-                      <PlusCircle size={16} /> 질문 추가
+                      <PlusCircle size={16} /> 직접 추가
                     </button>
                   </div>
                   
+                  {/* 추천 질문 버튼 */}
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <p className="text-xs font-bold text-[#333333]/50 mb-2">추천 질문 추가:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {recommendedQuestions.map(q => (
+                        <button
+                          key={q}
+                          type="button"
+                          onClick={() => onAddQna(q)}
+                          className="px-2 py-1 bg-white text-xs text-[#4A90E2] border border-gray-200 rounded-full hover:bg-[#4A90E2] hover:text-white transition-colors"
+                        >
+                          + {q.substring(3)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="space-y-6">
                     {formData.qna?.map((item, idx) => (
                       <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">

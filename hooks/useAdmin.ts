@@ -109,12 +109,7 @@ export const useAdmin = () => {
     tags: [],
     image: '',
     links: [{ label: 'GitHub', url: '', description: '' }],
-    qna: [
-      { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-      { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-      { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-      { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-    ]
+    qna: []
   });
 
   // 폼 상태 관리 (프로필)
@@ -151,12 +146,7 @@ export const useAdmin = () => {
         ...project,
         image: project.image || '',
         links: project.links && project.links.length > 0 ? project.links : [{ label: 'GitHub', url: '', description: '' }],
-        qna: project.qna && project.qna.length > 0 ? project.qna : [
-          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-        ]
+        qna: project.qna && project.qna.length > 0 ? project.qna : []
       });
     } else {
       setEditingProject(null);
@@ -169,12 +159,7 @@ export const useAdmin = () => {
         tags: [],
         image: '',
         links: [{ label: 'GitHub', url: '', description: '' }],
-        qna: [
-          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-        ]
+        qna: []
       });
     }
     setIsModalOpen(true);
@@ -233,11 +218,11 @@ export const useAdmin = () => {
     setFormData({ ...formData, links: newLinks });
   };
 
-  // 프로젝트 Q&A 핸들러
-  const addQna = () => {
+  // 프로젝트 Q&A 핸들러 (수정됨: 질문 텍스트를 인자로 받을 수 있음)
+  const addQna = (questionText: string = 'Q. ') => {
     setFormData({
       ...formData,
-      qna: [...(formData.qna || []), { question: 'Q. ', answer: '' }]
+      qna: [...(formData.qna || []), { question: questionText, answer: '' }]
     });
   };
 
