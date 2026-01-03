@@ -21,13 +21,12 @@ export interface Project {
 // 프로필 데이터를 위한 타입 정의 (자기소개 페이지용)
 export interface Profile {
   name: string;
-  role: string;
+  // role 필드 삭제됨
   bio: string; // 짧은 소개
   about: string; // 긴 소개글 (Markdown 지원 가능하도록)
   image?: string; // 프로필 사진 URL
   email: string;
   github?: string;
-  // linkedin 필드 삭제됨
   
   // 학력
   education: {

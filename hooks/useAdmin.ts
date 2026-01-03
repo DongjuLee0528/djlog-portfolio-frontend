@@ -75,7 +75,7 @@ export const useAdmin = () => {
   // --- 프로필 관련 상태 ---
   const [profile, setProfile] = useState<Profile>({
     name: "Dongju Lee",
-    role: "Full Stack Developer",
+    // role 삭제됨
     bio: "Building digital products with clean code and thoughtful design.",
     about: "안녕하세요, 저는 문제를 구조적으로 해결하는 것을 좋아하는 개발자 이동주입니다. \n\n복잡한 요구사항을 명확한 시스템으로 변환하고, 사용자에게 실질적인 가치를 제공하는 제품을 만드는 데 열정을 가지고 있습니다. \n\n새로운 기술을 배우는 것을 두려워하지 않으며, 팀원들과의 소통을 통해 함께 성장하는 문화를 지향합니다.",
     email: "contact@example.com",

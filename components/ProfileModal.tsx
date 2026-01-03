@@ -149,25 +149,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-[#333333]/60 mb-1">이름</label>
-                      <input 
-                        type="text" 
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-[#333333]/60 mb-1">직업/역할</label>
-                      <input 
-                        type="text" 
-                        value={formData.role}
-                        onChange={(e) => setFormData({...formData, role: e.target.value})}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#333333]/60 mb-1">이름</label>
+                    <input 
+                      type="text" 
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
+                    />
                   </div>
 
                   <div>
