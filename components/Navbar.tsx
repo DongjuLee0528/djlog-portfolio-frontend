@@ -2,18 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Lock, User } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   // 스크롤 상태 관리 (스크롤 시 네비게이션 스타일 변경용)
   const [isScrolled, setIsScrolled] = useState(false);
   // 모바일 메뉴 열림/닫힘 상태 관리
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // 로그인 상태 관리 (실제로는 전역 상태나 Context API 사용 권장)
-  // 여기서는 로컬 스토리지로 간단하게 구현
+  // 로그인 상태 관리
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 스크롤 이벤트 감지하여 네비게이션 스타일 변경 및 로그인 상태 확인
   useEffect(() => {
@@ -41,8 +41,9 @@ const Navbar: React.FC = () => {
 
   // 네비게이션 메뉴 항목들
   const navLinks = [
-    { name: 'Projects', href: '#projects' },
-    { name: 'Stack', href: '#stack' },
+    { name: 'About', href: '/about' },
+    { name: 'Projects', href: '/#projects' },
+    { name: 'Stack', href: '/#stack' },
     { name: 'Contact', href: '#contact' },
   ];
 
@@ -84,6 +85,32 @@ const Navbar: React.FC = () => {
     }
   };
 
+  // 링크 클릭 핸들러 (페이지 이동 또는 스크롤)
+  const handleLinkClick = (href: string) => {
+    setIsMobileMenuOpen(false);
+    
+    if (href.startsWith('/#')) {
+      // 해시 링크인 경우
+      const hash = href.substring(2);
+      if (location.pathname !== '/') {
+        navigate('/');
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else {
+        const element = document.getElementById(hash);
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else if (href.startsWith('#')) {
+       const element = document.getElementById(href.substring(1));
+       if (element) element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // 일반 페이지 이동
+      navigate(href);
+    }
+  };
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -104,14 +131,14 @@ const Navbar: React.FC = () => {
         {/* 데스크톱 네비게이션 */}
         <div className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => (
-            <a
+            <button
               key={link.name}
-              href={link.href}
+              onClick={() => handleLinkClick(link.href)}
               className="text-sm font-medium text-[#333333] hover:text-[#4A90E2] transition-colors relative group"
             >
               {link.name}
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#4A90E2] transition-all duration-300 group-hover:w-full"></span>
-            </a>
+            </button>
           ))}
           
           {/* 관리자 버튼 (로그인 상태에 따라 아이콘 변경) */}
@@ -184,16 +211,15 @@ const Navbar: React.FC = () => {
           >
             <div className="flex flex-col p-6 space-y-6">
               {navLinks.map((link, i) => (
-                <motion.a
+                <motion.button
                   key={link.name}
                   custom={i}
                   variants={linkVariants}
-                  href={link.href}
-                  className="text-xl font-medium text-[#333333] hover:text-[#4A90E2] transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => handleLinkClick(link.href)}
+                  className="text-xl font-medium text-[#333333] hover:text-[#4A90E2] transition-colors text-left"
                 >
                   {link.name}
-                </motion.a>
+                </motion.button>
               ))}
               <motion.a
                 variants={linkVariants}

@@ -63,14 +63,14 @@ const Hero: React.FC = () => {
           </motion.div>
           
           <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[#222222] leading-[1.1] mb-6 tracking-tight">
-            Designing the <br />
+            Solving Problems <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4A90E2] to-[#8E54E9]">
-              Next Generation
+              Through Structure.
             </span>
           </motion.h1>
           
           <motion.p variants={itemVariants} className="text-base md:text-xl text-[#333333]/70 max-w-lg mb-8 leading-relaxed">
-            I build interactive digital experiences that bridge the gap between imagination and reality using modern web technologies.
+            I turn complex problems into clear, structured systems and practical solutions.
           </motion.p>
           
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-start sm:items-center gap-4">

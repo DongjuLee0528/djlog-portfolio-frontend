@@ -3,11 +3,12 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
-// 페이지 컴포넌트 import (경로 변경됨)
+// 페이지 컴포넌트 import
 import Home from './pages/Home';
 import ProjectDetail from './pages/ProjectDetail';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
+import About from './pages/About';
 
 // 스크롤 복원 컴포넌트
 const ScrollToTop = () => {
@@ -28,6 +29,7 @@ function App() {
         <AnimatePresence mode="wait">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
             <Route path="/project/:id" element={<ProjectDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/admin" element={<Admin />} />

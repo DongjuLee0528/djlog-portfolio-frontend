@@ -1,7 +1,7 @@
 // 관리자 대시보드 컴포넌트 (View)
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, LogOut, LayoutDashboard, ArrowLeft, Github, ExternalLink } from 'lucide-react';
+import { Plus, Edit2, Trash2, LogOut, LayoutDashboard, ArrowLeft, Github } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAdmin } from '../hooks/useAdmin';
 import ProjectModal from './ProjectModal';
@@ -38,13 +38,13 @@ const Admin: React.FC = () => {
             <button 
               onClick={() => navigate('/')}
               className="p-2 hover:bg-gray-100 rounded-full text-[#333333] transition-colors"
-              title="Back to Home"
+              title="홈으로 돌아가기"
             >
               <ArrowLeft size={20} />
             </button>
             <div className="flex items-center gap-2 text-[#222222] font-bold text-lg">
               <LayoutDashboard className="text-[#4A90E2]" size={20} />
-              Admin Dashboard
+              관리자 대시보드
             </div>
           </div>
           
@@ -53,7 +53,7 @@ const Admin: React.FC = () => {
             className="flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors"
           >
             <LogOut size={16} />
-            Logout
+            로그아웃
           </button>
         </div>
       </header>
@@ -64,15 +64,15 @@ const Admin: React.FC = () => {
         {/* Stats & Actions */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[#222222]">Projects</h1>
-            <p className="text-[#333333]/60 text-sm mt-1">Manage your portfolio projects here.</p>
+            <h1 className="text-2xl font-bold text-[#222222]">프로젝트 관리</h1>
+            <p className="text-[#333333]/60 text-sm mt-1">포트폴리오 프로젝트를 등록하고 관리하세요.</p>
           </div>
           <button 
             onClick={() => openModal()}
             className="flex items-center justify-center gap-2 bg-[#222222] text-white px-6 py-3 rounded-lg font-medium hover:bg-black transition-colors shadow-lg shadow-black/10"
           >
             <Plus size={18} />
-            New Project
+            새 프로젝트
           </button>
         </div>
 
@@ -82,11 +82,11 @@ const Admin: React.FC = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-wider text-[#333333]/50">
-                  <th className="px-6 py-4 font-semibold">Project Name</th>
-                  <th className="px-6 py-4 font-semibold">Category</th>
-                  <th className="px-6 py-4 font-semibold">GitHub Links</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold text-right">Actions</th>
+                  <th className="px-6 py-4 font-semibold">프로젝트명</th>
+                  <th className="px-6 py-4 font-semibold">카테고리</th>
+                  <th className="px-6 py-4 font-semibold">GitHub 링크</th>
+                  <th className="px-6 py-4 font-semibold">상태</th>
+                  <th className="px-6 py-4 font-semibold text-right">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -124,7 +124,7 @@ const Admin: React.FC = () => {
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {project.status}
+                        {project.status === 'Published' ? '공개됨' : '작성중'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -132,14 +132,14 @@ const Admin: React.FC = () => {
                         <button 
                           onClick={() => openModal(project)}
                           className="p-2 text-[#333333]/60 hover:text-[#4A90E2] hover:bg-blue-50 rounded-lg transition-colors" 
-                          title="Edit"
+                          title="수정"
                         >
                           <Edit2 size={16} />
                         </button>
                         <button 
                           onClick={() => handleDelete(project.id)}
                           className="p-2 text-[#333333]/60 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" 
-                          title="Delete"
+                          title="삭제"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -153,7 +153,7 @@ const Admin: React.FC = () => {
           
           {projects.length === 0 && (
             <div className="p-12 text-center text-[#333333]/40">
-              No projects found. Create your first one!
+              등록된 프로젝트가 없습니다. 첫 번째 프로젝트를 추가해보세요!
             </div>
           )}
         </div>
