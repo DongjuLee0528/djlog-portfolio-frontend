@@ -14,11 +14,8 @@ export default defineConfig(({ mode }) => {
       },
       // Vite 플러그인 설정
       plugins: [react()],
-      // 환경 변수 정의
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
+      // 환경 변수 정의 (현재 사용하지 않음)
+      define: {},
       // 모듈 경로 별칭 설정
       resolve: {
         alias: {
