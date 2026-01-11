@@ -128,11 +128,27 @@ export const useAdmin = () => {
     }
   }, [navigate]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm("정말 로그아웃 하시겠습니까?")) {
-      localStorage.removeItem('adminToken');
-      window.dispatchEvent(new Event('authChange')); // Navbar 업데이트
-      navigate('/');
+      try {
+        const token = localStorage.getItem('adminToken');
+
+        // 백엔드 API 호출
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      } catch (error) {
+        console.error('Logout API error:', error);
+        // 네트워크 오류가 있어도 로컬에서는 로그아웃 처리
+      } finally {
+        localStorage.removeItem('adminToken');
+        window.dispatchEvent(new Event('authChange')); // Navbar 업데이트
+        navigate('/');
+      }
     }
   };
 

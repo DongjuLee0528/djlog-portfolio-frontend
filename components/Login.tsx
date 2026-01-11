@@ -11,28 +11,40 @@ const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // 임시 로그인 로직 (실제로는 백엔드 API 호출 필요)
-    // 예: admin@example.com / password123
-    setTimeout(() => {
-      if (email === 'admin@example.com' && password === 'password123') {
+    try {
+      // 백엔드 API 호출
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
         // 로그인 성공 처리
-        localStorage.setItem('adminToken', 'dummy-token-12345');
-        
+        localStorage.setItem('adminToken', data.token);
+
         // Navbar 상태 업데이트를 위한 커스텀 이벤트 발생
         window.dispatchEvent(new Event('authChange'));
-        
+
         // 메인 페이지로 이동 (바로 관리자 페이지로 가지 않음)
         navigate('/');
       } else {
-        setError('Invalid email or password');
-        setIsLoading(false);
+        setError(data.message || 'Invalid email or password');
       }
-    }, 1000);
+    } catch (error) {
+      setError('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
