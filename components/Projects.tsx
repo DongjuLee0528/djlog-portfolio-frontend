@@ -1,45 +1,9 @@
 // 프로젝트 섹션 컴포넌트 - 개인 프로젝트들을 쇼케이스하는 섹션
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExternalLink, Github } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import type { Project } from '../types'; // index.ts는 생략 가능
-
-// 프로젝트 데이터 배열
-const projects: Project[] = [
-  {
-    id: 1,
-    title: "Linear Clone",
-    description: "A high-performance issue tracking application inspired by Linear. Features real-time sync, keyboard shortcuts, and a dark mode interface.",
-    tags: ["React", "Next.js", "Tailwind", "Supabase"],
-    link: "#",
-    image: "https://picsum.photos/800/600?random=1"
-  },
-  {
-    id: 2,
-    title: "FinTech Dashboard",
-    description: "Comprehensive financial analytics dashboard with complex data visualization, reporting tools, and secure authentication.",
-    tags: ["TypeScript", "D3.js", "Node.js", "PostgreSQL"],
-    link: "#",
-    image: "https://picsum.photos/800/600?random=2"
-  },
-  {
-    id: 3,
-    title: "AI Content Generator",
-    description: "SaaS platform leveraging LLMs to help marketers generate SEO-optimized content. Includes a rich text editor and project management.",
-    tags: ["OpenAI API", "React", "Stripe", "Redis"],
-    link: "#",
-    image: "https://picsum.photos/800/600?random=3"
-  },
-  {
-    id: 4,
-    title: "E-Commerce Headless CMS",
-    description: "A flexible headless CMS designed for modern e-commerce storefronts. API-first approach with a customizable admin panel.",
-    tags: ["GraphQL", "NestJS", "MongoDB", "Docker"],
-    link: "#",
-    image: "https://picsum.photos/800/600?random=4"
-  }
-];
 
 // 컨테이너 애니메이션 설정
 const container: Variants = {
@@ -68,10 +32,41 @@ const item: Variants = {
 
 const Projects: React.FC = () => {
   const navigate = useNavigate();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 프로젝트 데이터 로드
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const response = await fetch('/api/projects');
+        if (response.ok) {
+          const data = await response.json();
+          setProjects(data);
+        }
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   const handleProjectClick = (id: number) => {
     navigate(`/project/${id}`);
   };
+
+  if (isLoading) {
+    return (
+      <section id="projects" className="py-20 md:py-32 px-6 bg-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="text-[#333333]/60">Loading projects...</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="projects" className="py-20 md:py-32 px-6 bg-white">

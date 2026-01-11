@@ -6,71 +6,8 @@ export const useAdmin = () => {
   const navigate = useNavigate();
   
   // --- 프로젝트 관련 상태 ---
-  const [projects, setProjects] = useState<Project[]>([
-    { 
-      id: 1, 
-      title: "Linear Clone", 
-      category: "Web App", 
-      status: "Published", 
-      description: "A high-performance issue tracking application.",
-      tags: ["React", "Next.js"],
-      image: "https://picsum.photos/1200/600?random=1",
-      links: [
-        { label: "GitHub Repo", url: "https://github.com/user/linear-clone", description: "메인 소스코드 저장소" },
-        { label: "Live Demo", url: "https://linear-clone.vercel.app", description: "Vercel 배포 사이트" }
-      ],
-      qna: [
-        { 
-          question: 'Q. 어떤 프로젝트인가요?', 
-          answer: 'Linear의 미니멀한 디자인과 빠른 성능에 영감을 받아 제작한 이슈 트래킹 애플리케이션입니다. 개발자들이 키보드만으로 빠르게 작업을 처리할 수 있는 경험을 제공하는 것을 목표로 했습니다.' 
-        },
-        { 
-          question: 'Q. 나의 역할은 무엇이었나요?', 
-          answer: '1인 개발(Full Stack)로 기획부터 디자인, 프론트엔드, 백엔드 개발까지 전 과정을 담당했습니다. UI/UX 디자인 및 시스템 설계, Supabase를 활용한 실시간 데이터베이스 구축 등을 수행했습니다.' 
-        },
-        { 
-          question: 'Q. 왜 이 기술을 사용했나요?', 
-          answer: '초기 로딩 속도와 SEO가 중요했기 때문에 Next.js를 선택했습니다. 또한 별도의 백엔드 서버 구축 없이 실시간 기능을 구현하기 위해 Supabase를 도입했습니다.' 
-        },
-        { 
-          question: 'Q. 가장 어려웠던 점과 해결 방법은?', 
-          answer: '실시간 데이터 동기화 시 화면 깜빡임 문제가 있었습니다. 이를 해결하기 위해 React Query의 Optimistic Update(낙관적 업데이트) 패턴을 적용하여 사용자 경험을 개선했습니다.' 
-        }
-      ]
-    },
-    { 
-      id: 2, 
-      title: "FinTech Dashboard", 
-      category: "Dashboard", 
-      status: "Published", 
-      description: "Comprehensive financial analytics dashboard.",
-      tags: ["TypeScript", "D3.js"],
-      image: "https://picsum.photos/1200/600?random=2",
-      links: [
-        { label: "Frontend Repo", url: "https://github.com/user/fintech-fe", description: "프론트엔드 코드" },
-        { label: "Backend Repo", url: "https://github.com/user/fintech-be", description: "백엔드 API 서버 코드" },
-        { label: "API Docs", url: "https://api.fintech.com/docs", description: "Swagger API 문서" }
-      ],
-      qna: [
-        { 
-          question: 'Q. 어떤 프로젝트인가요?', 
-          answer: '핀테크 스타트업을 위한 기업용 금융 분석 대시보드입니다. 복잡한 금융 데이터를 시각화하여 의사결정권자가 한눈에 자산 흐름을 파악할 수 있도록 돕습니다.' 
-        },
-        { 
-          question: 'Q. 나의 역할은 무엇이었나요?', 
-          answer: '프론트엔드 리드로서 프로젝트 아키텍처를 설계하고, 핵심 차트 컴포넌트 개발을 주도했습니다.' 
-        },
-        { 
-          question: 'Q. 왜 이 기술을 사용했나요?', 
-          answer: '대량의 데이터를 처리해야 했기 때문에 타입 안정성이 보장되는 TypeScript를 도입했습니다. 차트 라이브러리로는 커스터마이징 자유도가 높은 D3.js를 선택했습니다.' 
-        },
-        { 
-          question: 'Q. 가장 어려웠던 점과 해결 방법은?', 
-          answer: '대량의 데이터 렌더링 시 성능 저하 문제가 있어, SVG 대신 Canvas API를 사용하여 렌더링 성능을 최적화했습니다.' 
-        }
-      ]
-    },
-  ]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
 
   // --- 프로필 관련 상태 ---
   const [profile, setProfile] = useState<Profile>({
@@ -119,14 +56,43 @@ export const useAdmin = () => {
   // 폼 상태 관리 (프로필)
   const [profileFormData, setProfileFormData] = useState<Profile>(profile);
 
-  // 관리자 권한 체크
+  // 관리자 권한 체크 및 프로젝트 데이터 로드
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (!token) {
       alert("접근 권한이 없습니다. 관리자 로그인이 필요합니다.");
       navigate('/login');
+      return;
     }
+
+    // 프로젝트 데이터 로드
+    loadProjects();
   }, [navigate]);
+
+  // API 헬퍼 함수
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('adminToken');
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+  };
+
+  // 프로젝트 목록 조회
+  const loadProjects = async () => {
+    setIsLoadingProjects(true);
+    try {
+      const response = await fetch('/api/projects');
+      if (response.ok) {
+        const data = await response.json();
+        setProjects(data);
+      }
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  };
 
   const handleLogout = async () => {
     if (window.confirm("정말 로그아웃 하시겠습니까?")) {
@@ -153,9 +119,23 @@ export const useAdmin = () => {
   };
 
   // --- 프로젝트 관련 핸들러 ---
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm("이 프로젝트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-      setProjects(projects.filter(p => p.id !== id));
+      try {
+        const response = await fetch(`/api/projects/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders(),
+        });
+
+        if (response.ok) {
+          setProjects(projects.filter(p => p.id !== id));
+        } else {
+          alert('프로젝트 삭제에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('Delete project error:', error);
+        alert('프로젝트 삭제 중 오류가 발생했습니다.');
+      }
     }
   };
 
@@ -195,25 +175,51 @@ export const useAdmin = () => {
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const cleanedData = {
       ...formData,
       links: formData.links?.filter(link => link.url.trim() !== '') || [],
       qna: formData.qna?.filter(item => item.question.trim() !== '' && item.answer.trim() !== '') || []
     };
 
-    if (editingProject) {
-      setProjects(projects.map(p => p.id === editingProject.id ? { ...cleanedData, id: p.id } : p));
-    } else {
-      const newProject: Project = {
-        ...cleanedData,
-        id: Date.now(),
-      };
-      setProjects([...projects, newProject]);
+    try {
+      if (editingProject) {
+        // 프로젝트 수정
+        const response = await fetch(`/api/projects/${editingProject.id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(cleanedData),
+        });
+
+        if (response.ok) {
+          const updatedProject = await response.json();
+          setProjects(projects.map(p => p.id === editingProject.id ? updatedProject : p));
+          setIsModalOpen(false);
+        } else {
+          alert('프로젝트 수정에 실패했습니다.');
+        }
+      } else {
+        // 프로젝트 생성
+        const response = await fetch('/api/projects', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(cleanedData),
+        });
+
+        if (response.ok) {
+          const newProject = await response.json();
+          setProjects([...projects, newProject]);
+          setIsModalOpen(false);
+        } else {
+          alert('프로젝트 생성에 실패했습니다.');
+        }
+      }
+    } catch (error) {
+      console.error('Save project error:', error);
+      alert('프로젝트 저장 중 오류가 발생했습니다.');
     }
-    setIsModalOpen(false);
   };
 
   // --- 프로필 관련 핸들러 ---
@@ -270,6 +276,7 @@ export const useAdmin = () => {
   return {
     projects,
     profile,
+    isLoadingProjects,
     isModalOpen,
     setIsModalOpen,
     isProfileModalOpen,
@@ -285,6 +292,7 @@ export const useAdmin = () => {
     openProfileModal,
     handleSave,
     handleProfileSave,
+    loadProjects,
     addLink,
     removeLink,
     updateLink,
