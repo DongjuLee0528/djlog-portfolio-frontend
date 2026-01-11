@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { X, Upload, Image as ImageIcon, PlusCircle, MinusCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Profile } from '../types';
@@ -19,16 +19,38 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   onSave
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // 파일 업로드 핸들러
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      setIsUploading(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formDataUpload,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setFormData({ ...formData, image: data.url });
+        } else {
+          alert('파일 업로드에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('File upload error:', error);
+        alert('파일 업로드 중 오류가 발생했습니다.');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -131,19 +153,31 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                       )}
                     </div>
                     <div>
-                      <input 
-                        type="file" 
+                      <input
+                        type="file"
                         ref={fileInputRef}
                         onChange={handleFileUpload}
                         accept="image/*"
                         className="hidden"
+                        disabled={isUploading}
                       />
-                      <button 
+                      <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-[#333333] rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+                        disabled={isUploading}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-[#333333] rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Upload size={16} /> 사진 변경
+                        {isUploading ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                            업로드 중...
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={16} />
+                            사진 변경
+                          </>
+                        )}
                       </button>
                       <p className="text-xs text-[#333333]/50 mt-2">권장 사이즈: 400x400px</p>
                     </div>

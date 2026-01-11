@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { X, ExternalLink, MinusCircle, PlusCircle, Image as ImageIcon, Upload, Link as LinkIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Project } from '../types';
@@ -42,16 +42,38 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   onUpdateQna
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // 파일 업로드 핸들러
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      setIsUploading(true);
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formDataUpload,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setFormData({ ...formData, image: data.url });
+        } else {
+          alert('파일 업로드에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('File upload error:', error);
+        alert('파일 업로드 중 오류가 발생했습니다.');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -141,31 +163,42 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                         <div className="flex-1">
                           <div className="relative">
                             <LinkIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input 
-                              type="url" 
-                              value={formData.image?.startsWith('data:') ? '' : formData.image || ''}
+                            <input
+                              type="url"
+                              value={formData.image || ''}
                               onChange={(e) => setFormData({...formData, image: e.target.value})}
                               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
                               placeholder="이미지 URL 입력 (https://...)"
-                              disabled={!!formData.image?.startsWith('data:')}
+                              disabled={isUploading}
                             />
                           </div>
                         </div>
                         <div className="relative">
-                          <input 
-                            type="file" 
+                          <input
+                            type="file"
                             ref={fileInputRef}
                             onChange={handleFileUpload}
                             accept="image/*"
                             className="hidden"
+                            disabled={isUploading}
                           />
-                          <button 
+                          <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-[#333333] rounded-lg hover:bg-gray-200 transition-colors font-medium whitespace-nowrap"
+                            disabled={isUploading}
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-[#333333] rounded-lg hover:bg-gray-200 transition-colors font-medium whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Upload size={18} />
-                            파일 업로드
+                            {isUploading ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                                업로드 중...
+                              </>
+                            ) : (
+                              <>
+                                <Upload size={18} />
+                                파일 업로드
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>
