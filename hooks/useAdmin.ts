@@ -11,24 +11,16 @@ export const useAdmin = () => {
 
   // --- 프로필 관련 상태 ---
   const [profile, setProfile] = useState<Profile>({
-    name: "Dongju Lee",
-    // role 삭제됨
-    bio: "Building digital products with clean code and thoughtful design.",
-    about: "안녕하세요, 저는 문제를 구조적으로 해결하는 것을 좋아하는 개발자 이동주입니다. \n\n복잡한 요구사항을 명확한 시스템으로 변환하고, 사용자에게 실질적인 가치를 제공하는 제품을 만드는 데 열정을 가지고 있습니다. \n\n새로운 기술을 배우는 것을 두려워하지 않으며, 팀원들과의 소통을 통해 함께 성장하는 문화를 지향합니다.",
-    email: "contact@example.com",
-    github: "https://github.com",
-    education: [
-      { school: "Computer Science Univ", degree: "Bachelor of Science", period: "2018 - 2022" }
-    ],
-    certificates: [
-      { name: "AWS Certified Solutions Architect", issuer: "Amazon Web Services", date: "2023.05" }
-    ],
-    skills: [
-      { category: "Frontend", items: ["React", "TypeScript", "Next.js", "Tailwind CSS"] },
-      { category: "Backend", items: ["Node.js", "NestJS", "PostgreSQL", "Redis"] },
-      { category: "DevOps", items: ["Docker", "AWS", "GitHub Actions"] }
-    ]
+    name: "",
+    bio: "",
+    about: "",
+    email: "",
+    github: "",
+    education: [],
+    certificates: [],
+    skills: []
   });
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
   // 모달 상태 관리
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,8 +57,9 @@ export const useAdmin = () => {
       return;
     }
 
-    // 프로젝트 데이터 로드
+    // 프로젝트 데이터 및 프로필 데이터 로드
     loadProjects();
+    loadProfile();
   }, [navigate]);
 
   // API 헬퍼 함수
@@ -91,6 +84,23 @@ export const useAdmin = () => {
       console.error('Failed to load projects:', error);
     } finally {
       setIsLoadingProjects(false);
+    }
+  };
+
+  // 프로필 조회
+  const loadProfile = async () => {
+    setIsLoadingProfile(true);
+    try {
+      const response = await fetch('/api/profile');
+      if (response.ok) {
+        const data = await response.json();
+        setProfile(data);
+        setProfileFormData(data);
+      }
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+    } finally {
+      setIsLoadingProfile(false);
     }
   };
 
@@ -228,11 +238,28 @@ export const useAdmin = () => {
     setIsProfileModalOpen(true);
   };
 
-  const handleProfileSave = (e: React.FormEvent) => {
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setProfile(profileFormData);
-    setIsProfileModalOpen(false);
-    alert("프로필이 업데이트되었습니다.");
+
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(profileFormData),
+      });
+
+      if (response.ok) {
+        const updatedProfile = await response.json();
+        setProfile(updatedProfile);
+        setIsProfileModalOpen(false);
+        alert("프로필이 업데이트되었습니다.");
+      } else {
+        alert('프로필 업데이트에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Update profile error:', error);
+      alert('프로필 업데이트 중 오류가 발생했습니다.');
+    }
   };
 
   // 프로젝트 링크 핸들러
@@ -277,6 +304,7 @@ export const useAdmin = () => {
     projects,
     profile,
     isLoadingProjects,
+    isLoadingProfile,
     isModalOpen,
     setIsModalOpen,
     isProfileModalOpen,
@@ -293,6 +321,7 @@ export const useAdmin = () => {
     handleSave,
     handleProfileSave,
     loadProjects,
+    loadProfile,
     addLink,
     removeLink,
     updateLink,

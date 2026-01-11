@@ -1,19 +1,60 @@
 // 자기소개 페이지 컴포넌트
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Github, Award, GraduationCap, Code2, User } from 'lucide-react';
-import { useAdmin } from '../hooks/useAdmin'; // 임시로 데이터 가져오기 위해 사용
 import Navbar from '../components/Navbar';
 import Contact from '../components/Contact';
+import type { Profile } from '../types';
 
 const About: React.FC = () => {
-  // 실제로는 별도의 API나 전역 상태에서 가져와야 하지만, 편의상 useAdmin의 초기값을 사용
-  const { profile } = useAdmin();
+  const [profile, setProfile] = useState<Profile>({
+    name: "",
+    bio: "",
+    about: "",
+    email: "",
+    github: "",
+    education: [],
+    certificates: [],
+    skills: []
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 프로필 데이터 로드
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data);
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   // 스크롤을 최상단으로 이동
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="bg-[#F7F7F7] min-h-screen">
+        <Navbar />
+        <main className="pt-32 pb-20 px-6">
+          <div className="max-w-5xl mx-auto text-center">
+            <div className="text-[#333333]/60">Loading profile...</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#F7F7F7] min-h-screen">
