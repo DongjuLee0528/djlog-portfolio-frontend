@@ -1,26 +1,17 @@
 // 기술 스택 섹션 컴포넌트 - 사용하는 기술들을 카테고리별로 쇼케이스
 import React, { useState, useEffect } from 'react';
-import { Code2, Database, Layout, Smartphone, Server, Globe } from 'lucide-react';
+import { Code2, Database, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Profile } from '../types';
 
 // 카테고리별 아이콘 매핑
 const getIconForCategory = (category: string) => {
   const categoryLower = category.toLowerCase();
-  if (categoryLower.includes('frontend') || categoryLower.includes('front')) {
-    return <Layout className="w-6 h-6 text-[#4A90E2]" />;
-  }
-  if (categoryLower.includes('backend') || categoryLower.includes('back')) {
-    return <Database className="w-6 h-6 text-[#4A90E2]" />;
-  }
-  if (categoryLower.includes('mobile') || categoryLower.includes('native')) {
-    return <Smartphone className="w-6 h-6 text-[#4A90E2]" />;
-  }
-  if (categoryLower.includes('devops') || categoryLower.includes('tools')) {
+  if (categoryLower.includes('language') || categoryLower.includes('언어')) {
     return <Code2 className="w-6 h-6 text-[#4A90E2]" />;
   }
-  if (categoryLower.includes('server') || categoryLower.includes('infrastructure')) {
-    return <Server className="w-6 h-6 text-[#4A90E2]" />;
+  if (categoryLower.includes('tools') || categoryLower.includes('devops') || categoryLower.includes('도구')) {
+    return <Database className="w-6 h-6 text-[#4A90E2]" />;
   }
   // 기본 아이콘
   return <Globe className="w-6 h-6 text-[#4A90E2]" />;

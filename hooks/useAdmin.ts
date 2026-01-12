@@ -18,7 +18,10 @@ export const useAdmin = () => {
     github: "",
     education: [],
     certificates: [],
-    skills: []
+    skills: [
+      { category: "Languages", items: ["Python", "Java", "JavaScript", "TypeScript"] },
+      { category: "Tools & DevOps", items: ["Git", "Docker", "VS Code", "IntelliJ IDEA"] }
+    ]
   });
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
