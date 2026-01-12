@@ -1,33 +1,63 @@
 // 기술 스택 섹션 컴포넌트 - 사용하는 기술들을 카테고리별로 쇼케이스
-import React from 'react';
-import { Code2, Database, Layout, Smartphone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Code2, Database, Layout, Smartphone, Server, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
+import type { Profile } from '../types';
 
-// 기술 스택 데이터 배열 (카테고리별)
-const skills = [
-  {
-    category: "Frontend", // 프론트엔드 기술
-    icon: <Layout className="w-6 h-6 text-[#4A90E2]" />,
-    items: ["React", "TypeScript", "Tailwind CSS", "Next.js", "Framer Motion", "Three.js"]
-  },
-  {
-    category: "Backend", // 백엔드 기술
-    icon: <Database className="w-6 h-6 text-[#4A90E2]" />,
-    items: ["Node.js", "PostgreSQL", "Supabase", "Redis", "GraphQL", "Python"]
-  },
-  {
-    category: "Mobile & Native", // 모바일 및 네이티브 기술
-    icon: <Smartphone className="w-6 h-6 text-[#4A90E2]" />,
-    items: ["React Native", "Expo", "Swift", "PWA"]
-  },
-  {
-    category: "Tools & DevOps", // 개발 도구 및 DevOps
-    icon: <Code2 className="w-6 h-6 text-[#4A90E2]" />,
-    items: ["Git", "Docker", "AWS", "Vercel", "Figma", "CI/CD"]
+// 카테고리별 아이콘 매핑
+const getIconForCategory = (category: string) => {
+  const categoryLower = category.toLowerCase();
+  if (categoryLower.includes('frontend') || categoryLower.includes('front')) {
+    return <Layout className="w-6 h-6 text-[#4A90E2]" />;
   }
-];
+  if (categoryLower.includes('backend') || categoryLower.includes('back')) {
+    return <Database className="w-6 h-6 text-[#4A90E2]" />;
+  }
+  if (categoryLower.includes('mobile') || categoryLower.includes('native')) {
+    return <Smartphone className="w-6 h-6 text-[#4A90E2]" />;
+  }
+  if (categoryLower.includes('devops') || categoryLower.includes('tools')) {
+    return <Code2 className="w-6 h-6 text-[#4A90E2]" />;
+  }
+  if (categoryLower.includes('server') || categoryLower.includes('infrastructure')) {
+    return <Server className="w-6 h-6 text-[#4A90E2]" />;
+  }
+  // 기본 아이콘
+  return <Globe className="w-6 h-6 text-[#4A90E2]" />;
+};
 
 const Stack: React.FC = () => {
+  const [skills, setSkills] = useState<Profile['skills']>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 프로필에서 기술 스택 데이터 로드
+  useEffect(() => {
+    const loadSkills = async () => {
+      try {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+          const data = await response.json();
+          setSkills(data.skills || []);
+        }
+      } catch (error) {
+        console.error('Failed to load skills:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSkills();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section id="stack" className="py-20 md:py-32 bg-[#F7F7F7] relative border-y border-gray-200/50">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="text-[#333333]/60">Loading skills...</div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section id="stack" className="py-20 md:py-32 bg-[#F7F7F7] relative border-y border-gray-200/50">
       <div className="max-w-7xl mx-auto px-6">
@@ -57,7 +87,7 @@ const Stack: React.FC = () => {
             >
               {/* 배경 장식용 아이콘 */}
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform translate-x-4 -translate-y-4">
-                 {React.cloneElement(skill.icon as React.ReactElement<any>, { className: "w-24 h-24 text-[#4A90E2]" })}
+                {React.cloneElement(getIconForCategory(skill.category), { className: "w-24 h-24 text-[#4A90E2]" })}
               </div>
 
               {/* 카테고리 아이콘 */}
@@ -66,7 +96,7 @@ const Stack: React.FC = () => {
                 transition={{ duration: 0.6 }}
                 className="w-12 h-12 bg-[#F0F5FA] rounded-xl flex items-center justify-center shadow-inner mb-6 relative z-10"
               >
-                {skill.icon}
+                {getIconForCategory(skill.category)}
               </motion.div>
               
               {/* 카테고리 제목 */}
