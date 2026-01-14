@@ -39,7 +39,7 @@ export const useAdmin = () => {
     description: '',
     tags: [],
     image: '',
-    links: [{ label: 'GitHub', url: '', description: '' }],
+    githubLinks: [{ label: 'GitHub', url: '' }],
     qna: [
       { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
       { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
@@ -158,7 +158,7 @@ export const useAdmin = () => {
       setFormData({
         ...project,
         image: project.image || '',
-        links: project.links && project.links.length > 0 ? project.links : [{ label: 'GitHub', url: '', description: '' }],
+        githubLinks: project.githubLinks && project.githubLinks.length > 0 ? project.githubLinks : [{ label: 'GitHub', url: '' }],
         qna: project.qna && project.qna.length > 0 ? project.qna : [
           { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
           { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
@@ -176,7 +176,7 @@ export const useAdmin = () => {
         description: '',
         tags: [],
         image: '',
-        links: [{ label: 'GitHub', url: '', description: '' }],
+        githubLinks: [{ label: 'GitHub', url: '' }],
         qna: [
           { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
           { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
@@ -193,7 +193,7 @@ export const useAdmin = () => {
 
     const cleanedData = {
       ...formData,
-      links: formData.links?.filter(link => link.url.trim() !== '') || [],
+      githubLinks: formData.githubLinks?.filter(link => link.url.trim() !== '') || [],
       qna: formData.qna?.filter(item => item.question.trim() !== '' && item.answer.trim() !== '') || []
     };
 
@@ -269,19 +269,19 @@ export const useAdmin = () => {
   const addLink = () => {
     setFormData({
       ...formData,
-      links: [...(formData.links || []), { label: '', url: '', description: '' }]
+      githubLinks: [...(formData.githubLinks || []), { label: '', url: '' }]
     });
   };
 
   const removeLink = (index: number) => {
-    const newLinks = formData.links?.filter((_, i) => i !== index) || [];
-    setFormData({ ...formData, links: newLinks });
+    const newLinks = formData.githubLinks?.filter((_, i) => i !== index) || [];
+    setFormData({ ...formData, githubLinks: newLinks });
   };
 
-  const updateLink = (index: number, field: 'label' | 'url' | 'description', value: string) => {
-    const newLinks = [...(formData.links || [])];
+  const updateLink = (index: number, field: 'label' | 'url', value: string) => {
+    const newLinks = [...(formData.githubLinks || [])];
     newLinks[index] = { ...newLinks[index], [field]: value };
-    setFormData({ ...formData, links: newLinks });
+    setFormData({ ...formData, githubLinks: newLinks });
   };
 
   // 프로젝트 Q&A 핸들러

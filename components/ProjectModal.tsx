@@ -12,7 +12,7 @@ interface ProjectModalProps {
   onSave: (e: React.FormEvent) => void;
   onAddLink: () => void;
   onRemoveLink: (index: number) => void;
-  onUpdateLink: (index: number, field: 'label' | 'url' | 'description', value: string) => void;
+  onUpdateLink: (index: number, field: 'label' | 'url', value: string) => void;
   onAddQna: (questionText?: string) => void; // 인자 타입 변경
   onRemoveQna: (index: number) => void;
   onUpdateQna: (index: number, field: 'question' | 'answer', value: string) => void;
@@ -251,7 +251,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   </div>
                   
                   <div className="space-y-4">
-                    {formData.links?.map((link, idx) => (
+                    {formData.githubLinks?.map((link, idx) => (
                       <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
                         <button 
                           type="button"
@@ -284,16 +284,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                                 placeholder="https://..."
                               />
                             </div>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-[#333333]/60 mb-1">설명 (Description)</label>
-                            <input 
-                              type="text" 
-                              value={link.description || ''}
-                              onChange={(e) => onUpdateLink(idx, 'description', e.target.value)}
-                              className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none bg-white text-sm"
-                              placeholder="예: 메인 소스코드 저장소, AWS 배포 서버"
-                            />
                           </div>
                         </div>
                       </div>
