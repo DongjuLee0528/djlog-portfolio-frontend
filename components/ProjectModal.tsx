@@ -1,23 +1,26 @@
+// 프로젝트 생성/수정 모달 컴포넌트 - 프로젝트 CRUD 관리를 위한 폼 모달
 import React, { useRef, useState } from 'react';
 import { X, ExternalLink, MinusCircle, PlusCircle, Image as ImageIcon, Upload, Link as LinkIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Project } from '../types';
 
+// 프로젝트 모달 컴포넌트의 props 타입 정의
 interface ProjectModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  isEditing: boolean;
-  formData: Project;
-  setFormData: React.Dispatch<React.SetStateAction<Project>>;
-  onSave: (e: React.FormEvent) => void;
-  onAddLink: () => void;
-  onRemoveLink: (index: number) => void;
-  onUpdateLink: (index: number, field: 'label' | 'url', value: string) => void;
-  onAddQna: (questionText?: string) => void; // 인자 타입 변경
-  onRemoveQna: (index: number) => void;
-  onUpdateQna: (index: number, field: 'question' | 'answer', value: string) => void;
+  isOpen: boolean; // 모달 표시 여부
+  onClose: () => void; // 모달 닫기 핸들러
+  isEditing: boolean; // 수정 모드 여부 (신규/수정 구분)
+  formData: Project; // 폼 데이터 상태
+  setFormData: React.Dispatch<React.SetStateAction<Project>>; // 폼 데이터 업데이트 함수
+  onSave: (e: React.FormEvent) => void; // 저장 핸들러
+  onAddLink: () => void; // GitHub 링크 추가 핸들러
+  onRemoveLink: (index: number) => void; // GitHub 링크 삭제 핸들러
+  onUpdateLink: (index: number, field: 'label' | 'url', value: string) => void; // GitHub 링크 수정 핸들러
+  onAddQna: (questionText?: string) => void; // Q&A 추가 핸들러 (추천 질문 텍스트 옵션)
+  onRemoveQna: (index: number) => void; // Q&A 삭제 핸들러
+  onUpdateQna: (index: number, field: 'question' | 'answer', value: string) => void; // Q&A 수정 핸들러
 }
 
+// 프로젝트 Q&A 섹션에서 자주 사용되는 추천 질문 리스트
 const recommendedQuestions = [
   'Q. 어떤 프로젝트인가요?',
   'Q. 나의 역할은 무엇이었나요?',
