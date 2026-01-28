@@ -1,14 +1,16 @@
+// 프로필 수정 모달 컴포넌트 - 개인 프로필 정보 관리를 위한 폼
 import React, { useRef, useState } from 'react';
 import { X, Upload, Image as ImageIcon, PlusCircle, MinusCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Profile } from '../types';
 
+// 프로필 모달 컴포넌트의 props 타입 정의
 interface ProfileModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  formData: Profile;
-  setFormData: React.Dispatch<React.SetStateAction<Profile>>;
-  onSave: (e: React.FormEvent) => void;
+  isOpen: boolean; // 모달 표시 여부
+  onClose: () => void; // 모달 닫기 핸들러
+  formData: Profile; // 프로필 폼 데이터
+  setFormData: React.Dispatch<React.SetStateAction<Profile>>; // 폼 데이터 업데이트 함수
+  onSave: (e: React.FormEvent) => void; // 저장 핸들러
 }
 
 const ProfileModal: React.FC<ProfileModalProps> = ({
