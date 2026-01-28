@@ -1,21 +1,20 @@
-// 프로젝트 상세 페이지 컴포넌트 - Q&A 아코디언 스타일
+// 프로젝트 상세 페이지 컴포넌트 - Q&A 아코디언 스타일로 프로젝트 정보 표시
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ExternalLink, Github, Calendar, Users, Code2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from '../types';
 
-
 const ProjectDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>(); // URL에서 프로젝트 ID 추출
   const navigate = useNavigate();
-  const [project, setProject] = useState<Project | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [project, setProject] = useState<Project | null>(null); // 프로젝트 데이터 상태
+  const [isLoading, setIsLoading] = useState(true); // 로딩 상태
 
-  // 아코디언 상태 관리 (기본적으로 첫 번째 질문은 열려있음)
+  // Q&A 아코디언 상태 관리 (기본적으로 첫 번째 질문은 열려있음)
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  // 프로젝트 데이터 로드
+  // 백엔드에서 프로젝트 상세 정보 로드
   useEffect(() => {
     const loadProject = async () => {
       if (!id) {
@@ -42,6 +41,7 @@ const ProjectDetail: React.FC = () => {
     loadProject();
   }, [id]);
 
+  // 아코디언 토글 핸들러
   const toggleAccordion = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
   };
