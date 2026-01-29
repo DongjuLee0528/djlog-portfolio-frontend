@@ -1,7 +1,16 @@
+// 관리자 대시보드를 위한 커스텀 훅 - 프로젝트/프로필 관리 로직 및 상태 제공
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Project, Profile } from '../types';
 
+/**
+ * 관리자 대시보드의 모든 비즈니스 로직을 관리하는 커스텀 훅
+ * - 프로젝트 CRUD 작업 (생성, 조회, 수정, 삭제)
+ * - 프로필 정보 관리
+ * - 모달 상태 관리
+ * - 폼 데이터 상태 관리
+ * - 인증 상태 관리
+ */
 export const useAdmin = () => {
   const navigate = useNavigate();
   
@@ -65,7 +74,7 @@ export const useAdmin = () => {
     loadProfile();
   }, [navigate]);
 
-  // API 헬퍼 함수
+  // API 요청 시 사용할 인증 헤더 생성 헬퍼 함수
   const getAuthHeaders = () => {
     const token = localStorage.getItem('adminToken');
     return {
@@ -107,12 +116,13 @@ export const useAdmin = () => {
     }
   };
 
+  // 로그아웃 처리 - 백엔드 세션 무효화 및 로컬 토큰 제거
   const handleLogout = async () => {
     if (window.confirm("정말 로그아웃 하시겠습니까?")) {
       try {
         const token = localStorage.getItem('adminToken');
 
-        // 백엔드 API 호출
+        // 백엔드에 로그아웃 요청하여 서버 세션 무효화
         await fetch('/api/auth/logout', {
           method: 'POST',
           headers: {
@@ -122,10 +132,13 @@ export const useAdmin = () => {
         });
       } catch (error) {
         console.error('Logout API error:', error);
-        // 네트워크 오류가 있어도 로컬에서는 로그아웃 처리
+        // 네트워크 오류가 있어도 로컬에서는 로그아웃 처리 진행
       } finally {
+        // 로컬 스토리지에서 토큰 제거
         localStorage.removeItem('adminToken');
-        window.dispatchEvent(new Event('authChange')); // Navbar 업데이트
+        // Navbar 상태 업데이트를 위한 커스텀 이벤트 발생
+        window.dispatchEvent(new Event('authChange'));
+        // 홈 페이지로 리다이렉트
         navigate('/');
       }
     }
@@ -152,8 +165,10 @@ export const useAdmin = () => {
     }
   };
 
+  // 프로젝트 모달 열기 - 신규 생성 또는 기존 프로젝트 수정
   const openModal = (project?: Project) => {
     if (project) {
+      // 수정 모드: 기존 프로젝트 데이터를 폼에 로드
       setEditingProject(project);
       setFormData({
         ...project,
@@ -167,6 +182,7 @@ export const useAdmin = () => {
         ]
       });
     } else {
+      // 신규 생성 모드: 기본값으로 폼 초기화
       setEditingProject(null);
       setFormData({
         id: 0,
@@ -265,7 +281,7 @@ export const useAdmin = () => {
     }
   };
 
-  // 프로젝트 링크 핸들러
+  // GitHub 링크 관리 핸들러들
   const addLink = () => {
     setFormData({
       ...formData,
@@ -284,7 +300,7 @@ export const useAdmin = () => {
     setFormData({ ...formData, githubLinks: newLinks });
   };
 
-  // 프로젝트 Q&A 핸들러
+  // 프로젝트 Q&A 섹션 관리 핸들러들
   const addQna = (questionText: string = 'Q. ') => {
     setFormData({
       ...formData,
@@ -303,33 +319,41 @@ export const useAdmin = () => {
     setFormData({ ...formData, qna: newQna });
   };
 
+  // 관리자 대시보드에서 사용할 모든 상태와 함수들을 반환
   return {
-    projects,
-    profile,
-    isLoadingProjects,
-    isLoadingProfile,
-    isModalOpen,
-    setIsModalOpen,
-    isProfileModalOpen,
-    setIsProfileModalOpen,
-    editingProject,
-    formData,
-    setFormData,
-    profileFormData,
-    setProfileFormData,
-    handleLogout,
-    handleDelete,
-    openModal,
-    openProfileModal,
-    handleSave,
-    handleProfileSave,
-    loadProjects,
-    loadProfile,
-    addLink,
-    removeLink,
-    updateLink,
-    addQna,
-    removeQna,
-    updateQna
+    // 상태 데이터
+    projects, // 프로젝트 목록
+    profile, // 프로필 정보
+    isLoadingProjects, // 프로젝트 로딩 상태
+    isLoadingProfile, // 프로필 로딩 상태
+    isModalOpen, // 프로젝트 모달 표시 여부
+    setIsModalOpen, // 프로젝트 모달 상태 변경
+    isProfileModalOpen, // 프로필 모달 표시 여부
+    setIsProfileModalOpen, // 프로필 모달 상태 변경
+    editingProject, // 현재 수정 중인 프로젝트
+    formData, // 프로젝트 폼 데이터
+    setFormData, // 프로젝트 폼 데이터 변경
+    profileFormData, // 프로필 폼 데이터
+    setProfileFormData, // 프로필 폼 데이터 변경
+
+    // 핸들러 함수들
+    handleLogout, // 로그아웃 처리
+    handleDelete, // 프로젝트 삭제
+    openModal, // 프로젝트 모달 열기
+    openProfileModal, // 프로필 모달 열기
+    handleSave, // 프로젝트 저장
+    handleProfileSave, // 프로필 저장
+    loadProjects, // 프로젝트 목록 새로고침
+    loadProfile, // 프로필 정보 새로고침
+
+    // GitHub 링크 관리
+    addLink, // 링크 추가
+    removeLink, // 링크 삭제
+    updateLink, // 링크 수정
+
+    // Q&A 관리
+    addQna, // Q&A 추가
+    removeQna, // Q&A 삭제
+    updateQna // Q&A 수정
   };
 };
