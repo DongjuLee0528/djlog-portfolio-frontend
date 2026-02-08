@@ -83,6 +83,21 @@ export const useAdmin = () => {
     };
   };
 
+  // 프로젝트 데이터 정규화 함수
+  const normalizeProject = (project: any): Project => {
+    return {
+      ...project,
+      tags: Array.isArray(project.tags) ? project.tags : [],
+      githubLinks: Array.isArray(project.githubLinks) ? project.githubLinks : [{ label: 'GitHub', url: '' }],
+      qna: Array.isArray(project.qna) ? project.qna : [
+        { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
+        { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
+        { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
+        { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
+      ]
+    };
+  };
+
   // 프로젝트 목록 조회
   const loadProjects = async () => {
     setIsLoadingProjects(true);
@@ -90,13 +105,28 @@ export const useAdmin = () => {
       const response = await fetch('/api/projects');
       if (response.ok) {
         const data = await response.json();
-        setProjects(data);
+        // 각 프로젝트 데이터를 정규화
+        const normalizedProjects = Array.isArray(data) ? data.map(normalizeProject) : [];
+        setProjects(normalizedProjects);
       }
     } catch (error) {
       console.error('Failed to load projects:', error);
     } finally {
       setIsLoadingProjects(false);
     }
+  };
+
+  // 프로필 데이터 정규화 함수
+  const normalizeProfile = (profile: any): Profile => {
+    return {
+      ...profile,
+      education: Array.isArray(profile.education) ? profile.education : [],
+      certificates: Array.isArray(profile.certificates) ? profile.certificates : [],
+      skills: Array.isArray(profile.skills) ? profile.skills : [
+        { category: "Languages", items: ["Python", "Java", "JavaScript", "TypeScript"] },
+        { category: "Tools & DevOps", items: ["Git", "Docker", "VS Code", "IntelliJ IDEA"] }
+      ]
+    };
   };
 
   // 프로필 조회
@@ -106,8 +136,10 @@ export const useAdmin = () => {
       const response = await fetch('/api/profile');
       if (response.ok) {
         const data = await response.json();
-        setProfile(data);
-        setProfileFormData(data);
+        // 프로필 데이터를 정규화
+        const normalizedProfile = normalizeProfile(data);
+        setProfile(normalizedProfile);
+        setProfileFormData(normalizedProfile);
       }
     } catch (error) {
       console.error('Failed to load profile:', error);
@@ -224,7 +256,9 @@ export const useAdmin = () => {
 
         if (response.ok) {
           const updatedProject = await response.json();
-          setProjects(projects.map(p => p.id === editingProject.id ? updatedProject : p));
+          // 응답 데이터를 정규화
+          const normalizedProject = normalizeProject(updatedProject);
+          setProjects(projects.map(p => p.id === editingProject.id ? normalizedProject : p));
           setIsModalOpen(false);
         } else {
           alert('프로젝트 수정에 실패했습니다.');
@@ -239,7 +273,9 @@ export const useAdmin = () => {
 
         if (response.ok) {
           const newProject = await response.json();
-          setProjects([...projects, newProject]);
+          // 응답 데이터를 정규화
+          const normalizedProject = normalizeProject(newProject);
+          setProjects([...projects, normalizedProject]);
           setIsModalOpen(false);
         } else {
           alert('프로젝트 생성에 실패했습니다.');
@@ -269,7 +305,9 @@ export const useAdmin = () => {
 
       if (response.ok) {
         const updatedProfile = await response.json();
-        setProfile(updatedProfile);
+        // 응답 데이터를 정규화
+        const normalizedProfile = normalizeProfile(updatedProfile);
+        setProfile(normalizedProfile);
         setIsProfileModalOpen(false);
         alert("프로필이 업데이트되었습니다.");
       } else {
