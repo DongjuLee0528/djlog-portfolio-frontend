@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { ExternalLink, Github } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import type { Project } from '../types'; // index.ts는 생략 가능
+import type { Project } from '../types';
+import { normalizeProjects } from '../utils/normalize';
 
 // 컨테이너 애니메이션 설정
 const container: Variants = {
@@ -42,7 +43,8 @@ const Projects: React.FC = () => {
         const response = await fetch('/api/projects');
         if (response.ok) {
           const data = await response.json();
-          setProjects(data);
+          const normalizedProjects = normalizeProjects(data);
+          setProjects(normalizedProjects);
         }
       } catch (error) {
         console.error('Failed to load projects:', error);
