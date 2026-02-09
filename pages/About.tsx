@@ -5,6 +5,7 @@ import { Mail, Github, Award, GraduationCap, Code2, User } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Contact from '../components/Contact';
 import type { Profile } from '../types';
+import { normalizeProfile } from '../utils/normalize';
 
 const About: React.FC = () => {
   const [profile, setProfile] = useState<Profile>({
@@ -26,7 +27,8 @@ const About: React.FC = () => {
         const response = await fetch('/api/profile');
         if (response.ok) {
           const data = await response.json();
-          setProfile(data);
+          const normalizedProfile = normalizeProfile(data);
+          setProfile(normalizedProfile);
         }
       } catch (error) {
         console.error('Failed to load profile:', error);
