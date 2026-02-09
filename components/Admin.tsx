@@ -1,7 +1,7 @@
 // 관리자 대시보드 컴포넌트 (View)
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, LogOut, LayoutDashboard, ArrowLeft, Github } from 'lucide-react';
+import { Plus, Edit2, Trash2, LogOut, LayoutDashboard, ArrowLeft, Github, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAdmin } from '../hooks/useAdmin';
 import ProjectModal from './ProjectModal';
@@ -84,7 +84,7 @@ const Admin: React.FC = () => {
                 <tr className="bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-wider text-[#333333]/50">
                   <th className="px-6 py-4 font-semibold">프로젝트명</th>
                   <th className="px-6 py-4 font-semibold">카테고리</th>
-                  <th className="px-6 py-4 font-semibold">GitHub 링크</th>
+                  <th className="px-6 py-4 font-semibold">링크</th>
                   <th className="px-6 py-4 font-semibold">상태</th>
                   <th className="px-6 py-4 font-semibold text-right">관리</th>
                 </tr>
@@ -116,6 +116,16 @@ const Admin: React.FC = () => {
                             <Github size={12} /> {link.label || 'Repo'}
                           </a>
                         ))}
+                        {project.demoLink && (
+                          <a 
+                            href={project.demoLink} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-xs text-[#333333] hover:bg-[#4A90E2] hover:text-white transition-colors"
+                          >
+                            <ExternalLink size={12} /> Demo
+                          </a>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
