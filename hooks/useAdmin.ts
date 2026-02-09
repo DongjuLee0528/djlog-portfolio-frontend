@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Project, Profile } from '../types';
+import { normalizeProject, normalizeProfile, normalizeProjects } from '../utils/normalize';
 
 /**
  * 관리자 대시보드의 모든 비즈니스 로직을 관리하는 커스텀 훅
@@ -83,20 +84,6 @@ export const useAdmin = () => {
     };
   };
 
-  // 프로젝트 데이터 정규화 함수
-  const normalizeProject = (project: any): Project => {
-    return {
-      ...project,
-      tags: Array.isArray(project.tags) ? project.tags : [],
-      githubLinks: Array.isArray(project.githubLinks) ? project.githubLinks : [{ label: 'GitHub', url: '' }],
-      qna: Array.isArray(project.qna) ? project.qna : [
-        { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-        { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-        { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-        { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-      ]
-    };
-  };
 
   // 프로젝트 목록 조회
   const loadProjects = async () => {
@@ -106,7 +93,7 @@ export const useAdmin = () => {
       if (response.ok) {
         const data = await response.json();
         // 각 프로젝트 데이터를 정규화
-        const normalizedProjects = Array.isArray(data) ? data.map(normalizeProject) : [];
+        const normalizedProjects = normalizeProjects(data);
         setProjects(normalizedProjects);
       }
     } catch (error) {
@@ -116,18 +103,6 @@ export const useAdmin = () => {
     }
   };
 
-  // 프로필 데이터 정규화 함수
-  const normalizeProfile = (profile: any): Profile => {
-    return {
-      ...profile,
-      education: Array.isArray(profile.education) ? profile.education : [],
-      certificates: Array.isArray(profile.certificates) ? profile.certificates : [],
-      skills: Array.isArray(profile.skills) ? profile.skills : [
-        { category: "Languages", items: ["Python", "Java", "JavaScript", "TypeScript"] },
-        { category: "Tools & DevOps", items: ["Git", "Docker", "VS Code", "IntelliJ IDEA"] }
-      ]
-    };
-  };
 
   // 프로필 조회
   const loadProfile = async () => {
