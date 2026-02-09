@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ExternalLink, Github, Calendar, Users, Code2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from '../types';
+import { normalizeProject } from '../utils/normalize';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // URL에서 프로젝트 ID 추출
@@ -26,7 +27,8 @@ const ProjectDetail: React.FC = () => {
         const response = await fetch(`/api/projects/${id}`);
         if (response.ok) {
           const data = await response.json();
-          setProject(data);
+          const normalizedProject = normalizeProject(data);
+          setProject(normalizedProject);
         } else {
           setProject(null);
         }
