@@ -4,43 +4,64 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ExternalLink, Github, Calendar, Users, Code2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from '../types';
-import { normalizeProject } from '../utils/normalize';
+import { normalizeProject, normalizeProjects } from '../utils/normalize';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // URL에서 프로젝트 ID 추출
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null); // 프로젝트 데이터 상태
+  const [nextProjectId, setNextProjectId] = useState<number | null>(null); // 다음 프로젝트 ID
+  const [nextProjectTitle, setNextProjectTitle] = useState<string>(""); // 다음 프로젝트 제목
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
 
   // Q&A 아코디언 상태 관리 (기본적으로 첫 번째 질문은 열려있음)
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  // 백엔드에서 프로젝트 상세 정보 로드
+  // 백엔드에서 프로젝트 상세 정보 및 전체 목록 로드
   useEffect(() => {
-    const loadProject = async () => {
+    const loadData = async () => {
       if (!id) {
         setIsLoading(false);
         return;
       }
 
       try {
-        const response = await fetch(`/api/projects/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          const normalizedProject = normalizeProject(data);
-          setProject(normalizedProject);
+        // 1. 현재 프로젝트 상세 정보 로드
+        const projectResponse = await fetch(`/api/projects/${id}`);
+        if (projectResponse.ok) {
+          const projectData = await projectResponse.json();
+          setProject(normalizeProject(projectData));
         } else {
           setProject(null);
         }
+
+        // 2. 전체 프로젝트 목록 로드하여 다음 프로젝트 계산
+        const listResponse = await fetch('/api/projects');
+        if (listResponse.ok) {
+          const listData = await listResponse.json();
+          const projects = normalizeProjects(listData);
+          
+          // ID 기준으로 정렬
+          const sortedProjects = projects.sort((a, b) => a.id - b.id);
+          const currentIndex = sortedProjects.findIndex(p => p.id === Number(id));
+          
+          if (currentIndex !== -1 && sortedProjects.length > 0) {
+            // 다음 인덱스 계산 (마지막이면 0으로 순환)
+            const nextIndex = (currentIndex + 1) % sortedProjects.length;
+            const nextProject = sortedProjects[nextIndex];
+            setNextProjectId(nextProject.id);
+            setNextProjectTitle(nextProject.title);
+          }
+        }
       } catch (error) {
-        console.error('Failed to load project:', error);
+        console.error('Failed to load data:', error);
         setProject(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadProject();
+    loadData();
   }, [id]);
 
   // 아코디언 토글 핸들러
@@ -51,7 +72,7 @@ const ProjectDetail: React.FC = () => {
   // 스크롤을 최상단으로 이동
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [id]); // id가 변경될 때마다 스크롤 초기화
 
   if (isLoading) {
     return (
@@ -114,7 +135,7 @@ const ProjectDetail: React.FC = () => {
             >
               {project.title}
             </motion.h1>
-<motion.p
+            <motion.p 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -131,7 +152,7 @@ const ProjectDetail: React.FC = () => {
         
         {/* 프로젝트 기본 정보 (가로 스크롤 가능) */}
         <div className="flex flex-wrap gap-y-6 gap-x-12 mb-16 pb-8 border-b border-gray-100">
-<div>
+          <div>
             <h3 className="text-xs font-bold text-[#4A90E2] uppercase tracking-wider mb-2 flex items-center gap-2">
               <Users size={14} /> Category
             </h3>
@@ -218,18 +239,20 @@ const ProjectDetail: React.FC = () => {
       </main>
       
       {/* 하단 네비게이션 (다음 프로젝트) */}
-      <footer className="bg-[#F7F7F7] py-20 border-t border-gray-200 mt-20">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h3 className="text-sm font-bold text-[#333333]/50 uppercase tracking-widest mb-4">Next Project</h3>
-          <button 
-            onClick={() => navigate(`/project/${Number(id) + 1 > 2 ? 1 : Number(id) + 1}`)}
-            className="text-3xl md:text-4xl font-bold text-[#222222] hover:text-[#4A90E2] transition-colors inline-flex items-center gap-3"
-          >
-            Next Work
-            <ArrowRight size={28} />
-          </button>
-        </div>
-      </footer>
+      {nextProjectId !== null && (
+        <footer className="bg-[#F7F7F7] py-20 border-t border-gray-200 mt-20">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <h3 className="text-sm font-bold text-[#333333]/50 uppercase tracking-widest mb-4">Next Project</h3>
+            <button 
+              onClick={() => navigate(`/project/${nextProjectId}`)}
+              className="text-3xl md:text-4xl font-bold text-[#222222] hover:text-[#4A90E2] transition-colors inline-flex items-center gap-3"
+            >
+              {nextProjectTitle || "Next Work"}
+              <ArrowRight size={28} />
+            </button>
+          </div>
+        </footer>
+      )}
     </motion.div>
   );
 };
