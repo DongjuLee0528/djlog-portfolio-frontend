@@ -7,20 +7,13 @@ import type { Project, Profile } from '../types';
  * @returns 정규화된 프로젝트 객체
  */
 export const normalizeProject = (project: any): Project => {
+  if (!project) return {} as Project;
+  
   return {
     ...project,
     tags: Array.isArray(project.tags) ? project.tags : [],
-    githubLinks: Array.isArray(project.githubLinks)
-      ? project.githubLinks
-      : [{ label: 'GitHub', url: '' }],
-    qna: Array.isArray(project.qna)
-      ? project.qna
-      : [
-          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-        ]
+    githubLinks: Array.isArray(project.githubLinks) ? project.githubLinks : [],
+    qna: Array.isArray(project.qna) ? project.qna : []
   };
 };
 
@@ -30,16 +23,13 @@ export const normalizeProject = (project: any): Project => {
  * @returns 정규화된 프로필 객체
  */
 export const normalizeProfile = (profile: any): Profile => {
+  if (!profile) return {} as Profile;
+
   return {
     ...profile,
     education: Array.isArray(profile.education) ? profile.education : [],
     certificates: Array.isArray(profile.certificates) ? profile.certificates : [],
-    skills: Array.isArray(profile.skills)
-      ? profile.skills
-      : [
-          { category: "Languages", items: ["Python", "Java", "JavaScript", "TypeScript"] },
-          { category: "Tools & DevOps", items: ["Git", "Docker", "VS Code", "IntelliJ IDEA"] }
-        ]
+    skills: Array.isArray(profile.skills) ? profile.skills : []
   };
 };
 
