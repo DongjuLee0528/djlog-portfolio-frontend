@@ -84,6 +84,45 @@ export const useAdmin = () => {
     };
   };
 
+  // 프로젝트 폼 데이터 초기화 헬퍼 함수
+  const toProjectFormData = (project: Project | null): Project => {
+    if (project) {
+      // 수정 모드: 기존 데이터 사용하되, 빈 값은 기본값으로 채움
+      return {
+        ...project,
+        image: project.image || '',
+        githubLinks: project.githubLinks && project.githubLinks.length > 0 
+          ? project.githubLinks 
+          : [{ label: 'GitHub', url: '' }],
+        qna: project.qna && project.qna.length > 0 
+          ? project.qna 
+          : [
+              { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
+              { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
+              { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
+              { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
+            ]
+      };
+    } else {
+      // 신규 생성 모드: 기본값으로 초기화
+      return {
+        id: 0,
+        title: '',
+        category: '',
+        status: 'Draft',
+        description: '',
+        tags: [],
+        image: '',
+        githubLinks: [{ label: 'GitHub', url: '' }],
+        qna: [
+          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
+          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
+          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
+          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
+        ]
+      };
+    }
+  };
 
   // 프로젝트 목록 조회
   const loadProjects = async () => {
@@ -174,40 +213,8 @@ export const useAdmin = () => {
 
   // 프로젝트 모달 열기 - 신규 생성 또는 기존 프로젝트 수정
   const openModal = (project?: Project) => {
-    if (project) {
-      // 수정 모드: 기존 프로젝트 데이터를 폼에 로드
-      setEditingProject(project);
-      setFormData({
-        ...project,
-        image: project.image || '',
-        githubLinks: project.githubLinks && project.githubLinks.length > 0 ? project.githubLinks : [{ label: 'GitHub', url: '' }],
-        qna: project.qna && project.qna.length > 0 ? project.qna : [
-          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-        ]
-      });
-    } else {
-      // 신규 생성 모드: 기본값으로 폼 초기화
-      setEditingProject(null);
-      setFormData({
-        id: 0,
-        title: '',
-        category: '',
-        status: 'Draft',
-        description: '',
-        tags: [],
-        image: '',
-        githubLinks: [{ label: 'GitHub', url: '' }],
-        qna: [
-          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-        ]
-      });
-    }
+    setEditingProject(project || null);
+    setFormData(toProjectFormData(project || null));
     setIsModalOpen(true);
   };
 
