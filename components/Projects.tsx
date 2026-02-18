@@ -64,7 +64,9 @@ const Projects: React.FC = () => {
     return (
       <section id="projects" className="py-20 md:py-32 px-6 bg-white">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="text-[#333333]/60">Loading projects...</div>
+          <div className="flex justify-center items-center h-40">
+            <div className="w-10 h-10 border-4 border-[#4A90E2]/30 border-t-[#4A90E2] rounded-full animate-spin"></div>
+          </div>
         </div>
       </section>
     );
@@ -121,6 +123,7 @@ const Projects: React.FC = () => {
                   transition={{ duration: 0.6 }}
                   src={project.image} 
                   alt={project.title} 
+                  loading="lazy" // Lazy Loading 적용
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
