@@ -78,7 +78,8 @@ const ProjectDetail: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7]">
         <div className="text-center">
-          <div className="text-[#333333]/60">Loading project...</div>
+          <div className="w-12 h-12 border-4 border-[#4A90E2]/30 border-t-[#4A90E2] rounded-full animate-spin mb-4 mx-auto"></div>
+          <div className="text-[#333333]/60 font-medium">Loading project...</div>
         </div>
       </div>
     );
@@ -123,6 +124,7 @@ const ProjectDetail: React.FC = () => {
         <img 
           src={project.image} 
           alt={project.title} 
+          loading="lazy" // Lazy Loading 적용
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end">
