@@ -51,7 +51,8 @@ const About: React.FC = () => {
         <Navbar />
         <main className="pt-32 pb-20 px-6">
           <div className="max-w-5xl mx-auto text-center">
-            <div className="text-[#333333]/60">Loading profile...</div>
+            <div className="w-12 h-12 border-4 border-[#4A90E2]/30 border-t-[#4A90E2] rounded-full animate-spin mb-4 mx-auto"></div>
+            <div className="text-[#333333]/60 font-medium">Loading profile...</div>
           </div>
         </main>
       </div>
@@ -74,7 +75,12 @@ const About: React.FC = () => {
               className="w-40 h-40 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white shadow-lg flex-shrink-0 bg-gray-100"
             >
               {profile.image ? (
-                <img src={profile.image} alt={profile.name} className="w-full h-full object-cover" />
+                <img 
+                  src={profile.image} 
+                  alt={profile.name} 
+                  loading="lazy" // Lazy Loading 적용
+                  className="w-full h-full object-cover" 
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-300">
                   <User size={64} />
@@ -213,6 +219,7 @@ const About: React.FC = () => {
         </div>
       </main>
       
+      {/* Contact 컴포넌트 추가 */}
       <Contact />
     </div>
   );
