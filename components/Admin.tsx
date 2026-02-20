@@ -1,2 +1,2 @@
-// DEPRECATED: This component has been moved to /pages/Admin.tsx
-// Please delete this file.
+// 더 이상 사용되지 않음: 이 컴포넌트는 /pages/Admin.tsx로 이동되었습니다
+// 이 파일을 삭제해주세요.
