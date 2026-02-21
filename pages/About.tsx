@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import Contact from '../components/Contact';
 import type { Profile } from '../types';
 import { normalizeProfile } from '../utils/normalize';
+import config from '../src/config';
 
 const About: React.FC = () => {
   const [profile, setProfile] = useState<Profile>({
@@ -24,7 +25,7 @@ const About: React.FC = () => {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const response = await fetch('/api/profile');
+        const response = await fetch(`${config.API_URL}/api/profile`);
         if (response.ok) {
           const data = await response.json();
           const normalizedProfile = normalizeProfile(data);
