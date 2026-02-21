@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, ExternalLink, Github, Calendar, Users, Code2, Ch
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from '../types';
 import { normalizeProject, normalizeProjects } from '../utils/normalize';
+import config from '../src/config';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // URL에서 프로젝트 ID 추출
@@ -27,7 +28,7 @@ const ProjectDetail: React.FC = () => {
 
       try {
         // 1. 현재 프로젝트 상세 정보 로드
-        const projectResponse = await fetch(`/api/projects/${id}`);
+        const projectResponse = await fetch(`${config.API_URL}/api/projects/${id}`);
         if (projectResponse.ok) {
           const projectData = await projectResponse.json();
           setProject(normalizeProject(projectData));
@@ -36,7 +37,7 @@ const ProjectDetail: React.FC = () => {
         }
 
         // 2. 전체 프로젝트 목록 로드하여 다음 프로젝트 계산
-        const listResponse = await fetch('/api/projects');
+        const listResponse = await fetch(`${config.API_URL}/api/projects`);
         if (listResponse.ok) {
           const listData = await listResponse.json();
           const projects = normalizeProjects(listData);
