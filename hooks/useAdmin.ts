@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Project, Profile } from '../types';
+import { ApiResponse } from '../types/api';
 import { normalizeProject, normalizeProfile, normalizeProjects } from '../utils/normalize';
+import { apiClient } from '../utils/apiClient';
 
 /**
  * 관리자 대시보드의 모든 비즈니스 로직을 관리하는 커스텀 훅
@@ -75,15 +77,6 @@ export const useAdmin = () => {
     loadProfile();
   }, [navigate]);
 
-  // API 요청 시 사용할 인증 헤더 생성 헬퍼 함수
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem('adminToken');
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    };
-  };
-
   // 프로젝트 폼 데이터 초기화 헬퍼 함수
   const toProjectFormData = (project: Project | null): Project => {
     if (project) {
@@ -128,13 +121,10 @@ export const useAdmin = () => {
   const loadProjects = async () => {
     setIsLoadingProjects(true);
     try {
-      const response = await fetch('/api/projects');
-      if (response.ok) {
-        const data = await response.json();
-        // 각 프로젝트 데이터를 정규화
-        const normalizedProjects = normalizeProjects(data);
-        setProjects(normalizedProjects);
-      }
+      const data = await apiClient<Project[]>('/api/projects');
+      // 각 프로젝트 데이터를 정규화
+      const normalizedProjects = normalizeProjects(data);
+      setProjects(normalizedProjects);
     } catch (error) {
       console.error('Failed to load projects:', error);
     } finally {
@@ -147,14 +137,11 @@ export const useAdmin = () => {
   const loadProfile = async () => {
     setIsLoadingProfile(true);
     try {
-      const response = await fetch('/api/profile');
-      if (response.ok) {
-        const data = await response.json();
-        // 프로필 데이터를 정규화
-        const normalizedProfile = normalizeProfile(data);
-        setProfile(normalizedProfile);
-        setProfileFormData(normalizedProfile);
-      }
+      const data = await apiClient<Profile>('/api/profile');
+      // 프로필 데이터를 정규화
+      const normalizedProfile = normalizeProfile(data);
+      setProfile(normalizedProfile);
+      setProfileFormData(normalizedProfile);
     } catch (error) {
       console.error('Failed to load profile:', error);
     } finally {
@@ -166,16 +153,8 @@ export const useAdmin = () => {
   const handleLogout = async () => {
     if (window.confirm("정말 로그아웃 하시겠습니까?")) {
       try {
-        const token = localStorage.getItem('adminToken');
-
         // 백엔드에 로그아웃 요청하여 서버 세션 무효화
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        await apiClient('/api/auth/logout', { method: 'POST' });
       } catch (error) {
         console.error('Logout API error:', error);
         // 네트워크 오류가 있어도 로컬에서는 로그아웃 처리 진행
@@ -194,16 +173,8 @@ export const useAdmin = () => {
   const handleDelete = async (id: number) => {
     if (window.confirm("이 프로젝트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
       try {
-        const response = await fetch(`/api/projects/${id}`, {
-          method: 'DELETE',
-          headers: getAuthHeaders(),
-        });
-
-        if (response.ok) {
-          setProjects(projects.filter(p => p.id !== id));
-        } else {
-          alert('프로젝트 삭제에 실패했습니다.');
-        }
+        await apiClient(`/api/projects/${id}`, { method: 'DELETE' });
+        setProjects(projects.filter(p => p.id !== id));
       } catch (error) {
         console.error('Delete project error:', error);
         alert('프로젝트 삭제 중 오류가 발생했습니다.');
@@ -230,38 +201,26 @@ export const useAdmin = () => {
     try {
       if (editingProject) {
         // 프로젝트 수정
-        const response = await fetch(`/api/projects/${editingProject.id}`, {
+        const updatedProject = await apiClient<Project>(`/api/projects/${editingProject.id}`, {
           method: 'PUT',
-          headers: getAuthHeaders(),
           body: JSON.stringify(cleanedData),
         });
 
-        if (response.ok) {
-          const updatedProject = await response.json();
-          // 응답 데이터를 정규화
-          const normalizedProject = normalizeProject(updatedProject);
-          setProjects(projects.map(p => p.id === editingProject.id ? normalizedProject : p));
-          setIsModalOpen(false);
-        } else {
-          alert('프로젝트 수정에 실패했습니다.');
-        }
+        // 응답 데이터를 정규화
+        const normalizedProject = normalizeProject(updatedProject);
+        setProjects(projects.map(p => p.id === editingProject.id ? normalizedProject : p));
+        setIsModalOpen(false);
       } else {
         // 프로젝트 생성
-        const response = await fetch('/api/projects', {
+        const newProject = await apiClient<Project>('/api/projects', {
           method: 'POST',
-          headers: getAuthHeaders(),
           body: JSON.stringify(cleanedData),
         });
 
-        if (response.ok) {
-          const newProject = await response.json();
-          // 응답 데이터를 정규화
-          const normalizedProject = normalizeProject(newProject);
-          setProjects([...projects, normalizedProject]);
-          setIsModalOpen(false);
-        } else {
-          alert('프로젝트 생성에 실패했습니다.');
-        }
+        // 응답 데이터를 정규화
+        const normalizedProject = normalizeProject(newProject);
+        setProjects([...projects, normalizedProject]);
+        setIsModalOpen(false);
       }
     } catch (error) {
       console.error('Save project error:', error);
@@ -279,22 +238,16 @@ export const useAdmin = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('/api/profile', {
+      const updatedProfile = await apiClient<Profile>('/api/profile', {
         method: 'PUT',
-        headers: getAuthHeaders(),
         body: JSON.stringify(profileFormData),
       });
 
-      if (response.ok) {
-        const updatedProfile = await response.json();
-        // 응답 데이터를 정규화
-        const normalizedProfile = normalizeProfile(updatedProfile);
-        setProfile(normalizedProfile);
-        setIsProfileModalOpen(false);
-        alert("프로필이 업데이트되었습니다.");
-      } else {
-        alert('프로필 업데이트에 실패했습니다.');
-      }
+      // 응답 데이터를 정규화
+      const normalizedProfile = normalizeProfile(updatedProfile);
+      setProfile(normalizedProfile);
+      setIsProfileModalOpen(false);
+      alert("프로필이 업데이트되었습니다.");
     } catch (error) {
       console.error('Update profile error:', error);
       alert('프로필 업데이트 중 오류가 발생했습니다.');
