@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { X, ExternalLink, MinusCircle, PlusCircle, Image as ImageIcon, Upload, Link as LinkIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Project } from '../types';
+import { apiClient } from '../utils/apiClient';
 
 // 프로젝트 모달 컴포넌트의 props 타입 정의
 interface ProjectModalProps {
@@ -68,21 +69,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
       formDataUpload.append('file', file);
 
       try {
-        const token = localStorage.getItem('adminToken');
-        const response = await fetch('/api/upload', {
+        const data = await apiClient<{ url: string }>('/api/upload', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
           body: formDataUpload,
         });
-
-        if (response.ok) {
-          const data = await response.json();
-          setFormData({ ...formData, image: data.url });
-        } else {
-          alert('파일 업로드에 실패했습니다.');
-        }
+        setFormData({ ...formData, image: data.url });
       } catch (error) {
         console.error('File upload error:', error);
         alert('파일 업로드 중 오류가 발생했습니다.');
@@ -109,6 +100,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
               <button 
                 onClick={onClose}
                 className="text-[#333333]/50 hover:text-[#222222] transition-colors"
+                aria-label="Close modal"
               >
                 <X size={24} />
               </button>
@@ -237,6 +229,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                               }}
                               className="absolute top-2 right-2 p-1 bg-white/80 rounded-full text-red-500 hover:bg-white hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
                               title="이미지 제거"
+                              aria-label="Remove image"
                             >
                               <X size={16} />
                             </button>
@@ -273,6 +266,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                           onClick={() => onRemoveLink(idx)}
                           className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                           title="링크 삭제"
+                          aria-label="Remove link"
                         >
                           <X size={16} />
                         </button>
@@ -344,6 +338,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                           onClick={() => onRemoveQna(idx)}
                           className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                           title="질문 삭제"
+                          aria-label="Remove question"
                         >
                           <X size={16} />
                         </button>
