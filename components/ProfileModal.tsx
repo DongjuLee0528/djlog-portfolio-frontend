@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { X, Upload, Image as ImageIcon, PlusCircle, MinusCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Profile } from '../types';
+import { apiClient } from '../utils/apiClient';
 
 // 프로필 모달 컴포넌트의 props 타입 정의
 interface ProfileModalProps {
@@ -44,21 +45,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
       formDataUpload.append('file', file);
 
       try {
-        const token = localStorage.getItem('adminToken');
-        const response = await fetch('/api/upload', {
+        const data = await apiClient<{ url: string }>('/api/upload', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
           body: formDataUpload,
         });
-
-        if (response.ok) {
-          const data = await response.json();
-          setFormData({ ...formData, image: data.url });
-        } else {
-          alert('파일 업로드에 실패했습니다.');
-        }
+        setFormData({ ...formData, image: data.url });
       } catch (error) {
         console.error('File upload error:', error);
         alert('파일 업로드 중 오류가 발생했습니다.');
@@ -143,7 +134,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
           >
             <div className="flex justify-between items-center p-6 border-b border-gray-100 shrink-0">
               <h2 className="text-xl font-bold text-[#222222]">프로필 수정</h2>
-              <button onClick={onClose} className="text-[#333333]/50 hover:text-[#222222] transition-colors">
+              <button 
+                onClick={onClose} 
+                className="text-[#333333]/50 hover:text-[#222222] transition-colors"
+                aria-label="Close modal"
+              >
                 <X size={24} />
               </button>
             </div>
@@ -282,7 +277,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                           className="px-3 py-2 rounded-lg border border-gray-200 outline-none"
                         />
                       </div>
-                      <button type="button" onClick={() => removeEducation(idx)} className="p-2 text-red-400 hover:text-red-600">
+                      <button 
+                        type="button" 
+                        onClick={() => removeEducation(idx)} 
+                        className="p-2 text-red-400 hover:text-red-600"
+                        aria-label="Remove education"
+                      >
                         <MinusCircle size={20} />
                       </button>
                     </div>
@@ -319,7 +319,12 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                           className="px-3 py-2 rounded-lg border border-gray-200 outline-none"
                         />
                       </div>
-                      <button type="button" onClick={() => removeCertificate(idx)} className="p-2 text-red-400 hover:text-red-600">
+                      <button 
+                        type="button" 
+                        onClick={() => removeCertificate(idx)} 
+                        className="p-2 text-red-400 hover:text-red-600"
+                        aria-label="Remove certificate"
+                      >
                         <MinusCircle size={20} />
                       </button>
                     </div>
@@ -340,6 +345,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
                         type="button" 
                         onClick={() => removeSkillCategory(idx)} 
                         className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                        aria-label="Remove skill category"
                       >
                         <X size={16} />
                       </button>
