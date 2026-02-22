@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Code2, Database, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Profile } from '../types';
+import { apiClient } from '../utils/apiClient';
 
 // 카테고리별 아이콘 매핑
 const getIconForCategory = (category: string) => {
@@ -25,11 +26,8 @@ const Stack: React.FC = () => {
   useEffect(() => {
     const loadSkills = async () => {
       try {
-        const response = await fetch('/api/profile');
-        if (response.ok) {
-          const data = await response.json();
-          setSkills(data.skills || []);
-        }
+        const data = await apiClient<Profile>('/api/profile');
+        setSkills(data.skills || []);
       } catch (error) {
         console.error('Failed to load skills:', error);
       } finally {
