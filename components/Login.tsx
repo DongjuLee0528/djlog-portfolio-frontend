@@ -1,2 +1,2 @@
-// 더 이상 사용되지 않음: 이 컴포넌트는 /pages/Login.tsx로 이동되었습니다
-// 이 파일을 삭제해주세요.
+// DEPRECATED: This component has been moved to /pages/Login.tsx
+// Please delete this file.
