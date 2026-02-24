@@ -5,6 +5,7 @@ import { motion, Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import type { Project } from '../types';
 import { normalizeProjects } from '../utils/normalize';
+import config from '../src/config';
 
 // 컨테이너 애니메이션 설정
 const container: Variants = {
@@ -40,7 +41,7 @@ const Projects: React.FC = () => {
   useEffect(() => {
     const loadProjects = async () => {
       try {
-        const response = await fetch('/api/projects');
+        const response = await fetch(`${config.API_URL}/api/projects`);
         if (response.ok) {
           const data = await response.json();
           const normalizedProjects = normalizeProjects(data);
@@ -58,6 +59,11 @@ const Projects: React.FC = () => {
 
   const handleProjectClick = (id: number) => {
     navigate(`/project/${id}`);
+  };
+
+  // 이미지 로드 실패 시 대체 이미지 처리
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = 'https://via.placeholder.com/800x600?text=No+Image';
   };
 
   if (isLoading) {
@@ -124,6 +130,7 @@ const Projects: React.FC = () => {
                   src={project.image} 
                   alt={project.title} 
                   loading="lazy" // Lazy Loading 적용
+                  onError={handleImageError} // 이미지 에러 핸들링
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
