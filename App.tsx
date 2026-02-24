@@ -9,6 +9,7 @@ import ProjectDetail from './pages/ProjectDetail';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
 import About from './pages/About';
+import NotFound from './pages/NotFound';
 
 // 스크롤 복원 컴포넌트
 const ScrollToTop = () => {
@@ -33,6 +34,8 @@ function App() {
             <Route path="/project/:id" element={<ProjectDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/admin" element={<Admin />} />
+            {/* 404 페이지 라우트 (가장 마지막에 위치) */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
       </div>
