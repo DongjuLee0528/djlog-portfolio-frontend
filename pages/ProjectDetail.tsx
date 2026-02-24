@@ -70,6 +70,11 @@ const ProjectDetail: React.FC = () => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
+  // 이미지 로드 실패 시 대체 이미지 처리
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = 'https://via.placeholder.com/1200x600?text=No+Image';
+  };
+
   // 스크롤을 최상단으로 이동
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -126,6 +131,7 @@ const ProjectDetail: React.FC = () => {
           src={project.image} 
           alt={project.title} 
           loading="lazy" // Lazy Loading 적용
+          onError={handleImageError} // 이미지 에러 핸들링
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end">
