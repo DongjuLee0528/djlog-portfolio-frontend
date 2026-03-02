@@ -115,12 +115,17 @@ const ProjectDetail: React.FC = () => {
       className="bg-white min-h-screen"
     >
       {/* 네비게이션 바 */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 h-16 flex items-center px-6 md:px-12">
-        <button 
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 h-16 flex items-center px-6 md:px-12"
+        role="navigation"
+        aria-label="프로젝트 내비게이션"
+      >
+        <button
           onClick={() => navigate('/')}
           className="flex items-center gap-2 text-[#333333] hover:text-[#4A90E2] transition-colors font-medium"
+          aria-label="프로젝트 목록으로 돌아가기"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} aria-hidden="true" />
           <span className="hidden sm:inline">Back to Projects</span>
         </button>
       </nav>
@@ -157,7 +162,7 @@ const ProjectDetail: React.FC = () => {
       </header>
 
       {/* 메인 콘텐츠 */}
-      <main className="max-w-4xl mx-auto px-6 md:px-8 py-12 md:py-20">
+      <main className="max-w-4xl mx-auto px-6 md:px-8 py-12 md:py-20" role="main" aria-label="프로젝트 상세 내용">
         
         {/* 프로젝트 기본 정보 (가로 스크롤 가능) */}
         <div className="flex flex-wrap gap-y-6 gap-x-12 mb-16 pb-8 border-b border-gray-100">
@@ -215,14 +220,17 @@ const ProjectDetail: React.FC = () => {
               <button
                 onClick={() => toggleAccordion(index)}
                 className="w-full flex items-center justify-between p-6 text-left bg-white hover:bg-gray-50 transition-colors"
+                aria-expanded={openIndex === index}
+                aria-controls={`answer-${index}`}
+                aria-label={`Q&A ${index + 1}: ${item.question}`}
               >
                 <span className={`text-lg md:text-xl font-bold ${openIndex === index ? 'text-[#4A90E2]' : 'text-[#222222]'}`}>
                   {item.question}
                 </span>
                 {openIndex === index ? (
-                  <ChevronUp className="text-[#4A90E2]" />
+                  <ChevronUp className="text-[#4A90E2]" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="text-[#333333]/40" />
+                  <ChevronDown className="text-[#333333]/40" aria-hidden="true" />
                 )}
               </button>
               
@@ -233,6 +241,9 @@ const ProjectDetail: React.FC = () => {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
+                    id={`answer-${index}`}
+                    role="region"
+                    aria-labelledby={`question-${index}`}
                   >
                     <div className="p-6 pt-0 text-[#333333]/80 leading-relaxed border-t border-gray-100/50">
                       <p className="whitespace-pre-wrap">{item.answer}</p>
@@ -252,12 +263,13 @@ const ProjectDetail: React.FC = () => {
         <footer className="bg-[#F7F7F7] py-20 border-t border-gray-200 mt-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <h3 className="text-sm font-bold text-[#333333]/50 uppercase tracking-widest mb-4">Next Project</h3>
-            <button 
+            <button
               onClick={() => navigate(`/project/${nextProjectId}`)}
               className="text-3xl md:text-4xl font-bold text-[#222222] hover:text-[#4A90E2] transition-colors inline-flex items-center gap-3"
+              aria-label={`다음 프로젝트로 이동: ${nextProjectTitle}`}
             >
               {nextProjectTitle || "Next Work"}
-              <ArrowRight size={28} />
+              <ArrowRight size={28} aria-hidden="true" />
             </button>
           </div>
         </footer>
