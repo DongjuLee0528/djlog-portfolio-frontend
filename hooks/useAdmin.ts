@@ -1,10 +1,12 @@
 // 관리자 대시보드를 위한 커스텀 훅 - 프로젝트/프로필 관리 로직 및 상태 제공
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Project, Profile } from '../types';
+import { Project, Profile } from '../src/types';
 import { ApiResponse } from '../types/api';
 import { normalizeProject, normalizeProfile, normalizeProjects } from '../utils/normalize';
 import { apiClient } from '../utils/apiClient';
+import { useToast } from '../src/hooks/useToast';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES, CONFIRM_MESSAGES, LOADING_MESSAGES } from '../src/constants';
 
 /**
  * 관리자 대시보드의 모든 비즈니스 로직을 관리하는 커스텀 훅
@@ -16,6 +18,7 @@ import { apiClient } from '../utils/apiClient';
  */
 export const useAdmin = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   
   // --- 프로젝트 관련 상태 ---
   const [projects, setProjects] = useState<Project[]>([]);
@@ -67,7 +70,7 @@ export const useAdmin = () => {
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (!token) {
-      alert("접근 권한이 없습니다. 관리자 로그인이 필요합니다.");
+      toast.error(ERROR_MESSAGES.UNAUTHORIZED);
       navigate('/login');
       return;
     }
@@ -75,7 +78,7 @@ export const useAdmin = () => {
     // 프로젝트 데이터 및 프로필 데이터 로드
     loadProjects();
     loadProfile();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   // 프로젝트 폼 데이터 초기화 헬퍼 함수
   const toProjectFormData = (project: Project | null): Project => {
@@ -118,7 +121,7 @@ export const useAdmin = () => {
   };
 
   // 프로젝트 목록 조회
-  const loadProjects = async () => {
+  const loadProjects = useCallback(async () => {
     setIsLoadingProjects(true);
     try {
       const data = await apiClient<Project[]>('/api/projects');
@@ -130,11 +133,11 @@ export const useAdmin = () => {
     } finally {
       setIsLoadingProjects(false);
     }
-  };
+  }, []);
 
 
   // 프로필 조회
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     setIsLoadingProfile(true);
     try {
       const data = await apiClient<Profile>('/api/profile');
@@ -147,18 +150,22 @@ export const useAdmin = () => {
     } finally {
       setIsLoadingProfile(false);
     }
-  };
+  }, []);
 
   // 로그아웃 처리 - 백엔드 세션 무효화 및 로컬 토큰 제거
-  const handleLogout = async () => {
-    if (window.confirm("정말 로그아웃 하시겠습니까?")) {
+  const handleLogout = useCallback(async () => {
+    if (window.confirm(CONFIRM_MESSAGES.LOGOUT)) {
+      const loadingToast = toast.loading(LOADING_MESSAGES.LOGGING_OUT);
       try {
         // 백엔드에 로그아웃 요청하여 서버 세션 무효화
         await apiClient('/api/auth/logout', { method: 'POST' });
+        toast.success(SUCCESS_MESSAGES.LOGOUT_SUCCESS);
       } catch (error) {
         console.error('Logout API error:', error);
+        toast.error(ERROR_MESSAGES.LOGOUT_FAILED);
         // 네트워크 오류가 있어도 로컬에서는 로그아웃 처리 진행
       } finally {
+        toast.dismiss(loadingToast);
         // 로컬 스토리지에서 토큰 제거
         localStorage.removeItem('adminToken');
         // Navbar 상태 업데이트를 위한 커스텀 이벤트 발생
@@ -167,37 +174,42 @@ export const useAdmin = () => {
         navigate('/');
       }
     }
-  };
+  }, [navigate, toast]);
 
   // --- 프로젝트 관련 핸들러 ---
-  const handleDelete = async (id: number) => {
-    if (window.confirm("이 프로젝트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+  const handleDelete = useCallback(async (id: number) => {
+    if (window.confirm(CONFIRM_MESSAGES.DELETE_PROJECT)) {
+      const loadingToast = toast.loading(LOADING_MESSAGES.DELETING);
       try {
         await apiClient(`/api/projects/${id}`, { method: 'DELETE' });
-        setProjects(projects.filter(p => p.id !== id));
+        setProjects(prevProjects => prevProjects.filter((p) => p.id !== id));
+        toast.success(SUCCESS_MESSAGES.PROJECT_DELETED);
       } catch (error) {
         console.error('Delete project error:', error);
-        alert('프로젝트 삭제 중 오류가 발생했습니다.');
+        toast.error(ERROR_MESSAGES.PROJECT_DELETE);
+      } finally {
+        toast.dismiss(loadingToast);
       }
     }
-  };
+  }, [toast]);
 
   // 프로젝트 모달 열기 - 신규 생성 또는 기존 프로젝트 수정
-  const openModal = (project?: Project) => {
+  const openModal = useCallback((project?: Project) => {
     setEditingProject(project || null);
     setFormData(toProjectFormData(project || null));
     setIsModalOpen(true);
-  };
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const cleanedData = {
       ...formData,
-      githubLinks: formData.githubLinks?.filter(link => link.url.trim() !== '') || [],
-      qna: formData.qna?.filter(item => item.question.trim() !== '' && item.answer.trim() !== '') || []
+      githubLinks: formData.githubLinks?.filter((link: any) => link.url.trim() !== '') || [],
+      qna: formData.qna?.filter((item: any) => item.question.trim() !== '' && item.answer.trim() !== '') || []
     };
 
+    const loadingToast = toast.loading(LOADING_MESSAGES.SAVING);
     try {
       if (editingProject) {
         // 프로젝트 수정
@@ -208,8 +220,9 @@ export const useAdmin = () => {
 
         // 응답 데이터를 정규화
         const normalizedProject = normalizeProject(updatedProject);
-        setProjects(projects.map(p => p.id === editingProject.id ? normalizedProject : p));
+        setProjects(projects.map((p: Project) => p.id === editingProject.id ? normalizedProject : p));
         setIsModalOpen(false);
+        toast.success(SUCCESS_MESSAGES.PROJECT_SAVED);
       } else {
         // 프로젝트 생성
         const newProject = await apiClient<Project>('/api/projects', {
@@ -221,10 +234,13 @@ export const useAdmin = () => {
         const normalizedProject = normalizeProject(newProject);
         setProjects([...projects, normalizedProject]);
         setIsModalOpen(false);
+        toast.success(SUCCESS_MESSAGES.PROJECT_SAVED);
       }
     } catch (error) {
       console.error('Save project error:', error);
-      alert('프로젝트 저장 중 오류가 발생했습니다.');
+      toast.error(ERROR_MESSAGES.PROJECT_SAVE);
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 
@@ -237,6 +253,7 @@ export const useAdmin = () => {
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const loadingToast = toast.loading(LOADING_MESSAGES.SAVING);
     try {
       const updatedProfile = await apiClient<Profile>('/api/profile', {
         method: 'PUT',
@@ -247,10 +264,12 @@ export const useAdmin = () => {
       const normalizedProfile = normalizeProfile(updatedProfile);
       setProfile(normalizedProfile);
       setIsProfileModalOpen(false);
-      alert("프로필이 업데이트되었습니다.");
+      toast.success(SUCCESS_MESSAGES.PROFILE_UPDATED);
     } catch (error) {
       console.error('Update profile error:', error);
-      alert('프로필 업데이트 중 오류가 발생했습니다.');
+      toast.error(ERROR_MESSAGES.PROFILE_UPDATE);
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 
@@ -263,7 +282,7 @@ export const useAdmin = () => {
   };
 
   const removeLink = (index: number) => {
-    const newLinks = formData.githubLinks?.filter((_, i) => i !== index) || [];
+    const newLinks = formData.githubLinks?.filter((_: any, i: number) => i !== index) || [];
     setFormData({ ...formData, githubLinks: newLinks });
   };
 
@@ -282,7 +301,7 @@ export const useAdmin = () => {
   };
 
   const removeQna = (index: number) => {
-    const newQna = formData.qna?.filter((_, i) => i !== index) || [];
+    const newQna = formData.qna?.filter((_: any, i: number) => i !== index) || [];
     setFormData({ ...formData, qna: newQna });
   };
 
