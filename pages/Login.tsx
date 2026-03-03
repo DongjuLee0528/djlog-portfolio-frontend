@@ -42,6 +42,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F7F7F7] px-6">
+      <main role="main" aria-label="관리자 로그인 페이지">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -57,38 +58,50 @@ const Login: React.FC = () => {
           <h2 className="text-2xl font-bold text-center text-[#222222] mb-2">Admin Access</h2>
           <p className="text-center text-[#333333]/60 mb-8">Enter your credentials to access the dashboard.</p>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5" role="form" aria-label="관리자 로그인 폼">
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-1.5">Email Address</label>
-              <input 
-                type="email" 
+              <label htmlFor="email" className="block text-sm font-medium text-[#333333] mb-1.5">Email Address</label>
+              <input
+                id="email"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#4A90E2] focus:ring-2 focus:ring-[#4A90E2]/20 outline-none transition-all bg-[#F9FAFB]"
                 placeholder="admin@example.com"
                 required
+                aria-describedby="email-help"
               />
+              <div id="email-help" className="absolute left-[-10000px] w-[1px] h-[1px] overflow-hidden">
+                관리자 이메일 주소를 입력하세요.
+              </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-1.5">Password</label>
-              <input 
-                type="password" 
+              <label htmlFor="password" className="block text-sm font-medium text-[#333333] mb-1.5">Password</label>
+              <input
+                id="password"
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#4A90E2] focus:ring-2 focus:ring-[#4A90E2]/20 outline-none transition-all bg-[#F9FAFB]"
                 placeholder="••••••••"
                 required
+                aria-describedby="password-help"
               />
+              <div id="password-help" className="absolute left-[-10000px] w-[1px] h-[1px] overflow-hidden">
+                관리자 비밀번호를 입력하세요.
+              </div>
             </div>
 
             {error && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 className="flex items-center gap-2 text-red-500 text-sm bg-red-50 p-3 rounded-lg"
+                role="alert"
+                aria-live="assertive"
               >
-                <AlertCircle size={16} />
+                <AlertCircle size={16} aria-hidden="true" />
                 {error}
               </motion.div>
             )}
@@ -99,10 +112,10 @@ const Login: React.FC = () => {
               className="w-full py-3.5 bg-[#222222] text-white rounded-lg font-medium hover:bg-black transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
-                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
               ) : (
                 <>
-                  Sign In <ArrowRight size={18} />
+                  Sign In <ArrowRight size={18} aria-hidden="true" />
                 </>
               )}
             </button>
@@ -115,6 +128,7 @@ const Login: React.FC = () => {
           </p>
         </div>
       </motion.div>
+      </main>
     </div>
   );
 };
