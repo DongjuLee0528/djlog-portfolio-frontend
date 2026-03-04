@@ -1,5 +1,5 @@
 // 자기소개 페이지 컴포넌트
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Github, Award, GraduationCap, Code2, User } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -8,7 +8,7 @@ import type { Profile } from '../types';
 import { normalizeProfile } from '../utils/normalize';
 import config from '../src/config';
 
-const About: React.FC = () => {
+const About: React.FC = memo(() => {
   const [profile, setProfile] = useState<Profile>({
     name: "",
     bio: "",
@@ -21,25 +21,26 @@ const About: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  // 프로필 데이터 로드 함수 - useCallback으로 메모이제이션
+  const loadProfile = useCallback(async () => {
+    try {
+      const response = await fetch(`${config.API_URL}/api/profile`);
+      if (response.ok) {
+        const data = await response.json();
+        const normalizedProfile = normalizeProfile(data);
+        setProfile(normalizedProfile);
+      }
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // 프로필 데이터 로드
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const response = await fetch(`${config.API_URL}/api/profile`);
-        if (response.ok) {
-          const data = await response.json();
-          const normalizedProfile = normalizeProfile(data);
-          setProfile(normalizedProfile);
-        }
-      } catch (error) {
-        console.error('Failed to load profile:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadProfile();
-  }, []);
+  }, [loadProfile]);
 
   // 스크롤을 최상단으로 이동
   useEffect(() => {
@@ -63,8 +64,8 @@ const About: React.FC = () => {
   return (
     <div className="bg-[#F7F7F7] min-h-screen">
       <Navbar />
-      
-      <main className="pt-32 pb-20 px-6">
+
+      <main className="pt-32 pb-20 px-6" role="main" aria-label="개인 정보 페이지">
         <div className="max-w-5xl mx-auto">
           
           {/* 프로필 헤더 섹션 */}
@@ -224,6 +225,9 @@ const About: React.FC = () => {
       <Contact />
     </div>
   );
-};
+});
+
+// displayName 설정으로 디버깅 시 컴포넌트 식별 용이
+About.displayName = 'About';
 
 export default About;
