@@ -1,5 +1,5 @@
 // 관리자 대시보드 페이지 (View)
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, LogOut, LayoutDashboard, ArrowLeft, Github, User } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -7,9 +7,14 @@ import { useAdmin } from '../hooks/useAdmin';
 import ProjectModal from '../components/ProjectModal';
 import ProfileModal from '../components/ProfileModal';
 
-const Admin: React.FC = () => {
+const Admin: React.FC = memo(() => {
   const navigate = useNavigate();
-  
+
+  // 홈 페이지로 돌아가기 핸들러 - useCallback으로 메모이제이션
+  const handleNavigateHome = useCallback(() => {
+    navigate('/');
+  }, [navigate]);
+
   // 커스텀 훅에서 로직과 상태 가져오기
   const {
     projects,
@@ -39,15 +44,16 @@ const Admin: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
       {/* Admin Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30" role="banner">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate('/')}
+            <button
+              onClick={handleNavigateHome}
               className="p-2 hover:bg-gray-100 rounded-full text-[#333333] transition-colors"
               title="홈으로 돌아가기"
+              aria-label="홈으로 돌아가기"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={20} aria-hidden="true" />
             </button>
             <div className="flex items-center gap-2 text-[#222222] font-bold text-lg">
               <LayoutDashboard className="text-[#4A90E2]" size={20} />
@@ -66,7 +72,7 @@ const Admin: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-10">
+      <main className="max-w-7xl mx-auto px-6 py-10" role="main" aria-label="관리자 대시보드">
         
         {/* Stats & Actions */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -93,9 +99,9 @@ const Admin: React.FC = () => {
         </div>
 
         {/* Project List */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" role="region" aria-label="프로젝트 목록">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse" role="table" aria-label="프로젝트 관리 테이블">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-wider text-[#333333]/50">
                   <th className="px-6 py-4 font-semibold">프로젝트명</th>
@@ -146,19 +152,21 @@ const Admin: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button 
+                        <button
                           onClick={() => openModal(project)}
-                          className="p-2 text-[#333333]/60 hover:text-[#4A90E2] hover:bg-blue-50 rounded-lg transition-colors" 
+                          className="p-2 text-[#333333]/60 hover:text-[#4A90E2] hover:bg-blue-50 rounded-lg transition-colors"
                           title="수정"
+                          aria-label={`${project.title} 프로젝트 수정`}
                         >
-                          <Edit2 size={16} />
+                          <Edit2 size={16} aria-hidden="true" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDelete(project.id)}
-                          className="p-2 text-[#333333]/60 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" 
+                          className="p-2 text-[#333333]/60 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                           title="삭제"
+                          aria-label={`${project.title} 프로젝트 삭제`}
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={16} aria-hidden="true" />
                         </button>
                       </div>
                     </td>
@@ -202,6 +210,9 @@ const Admin: React.FC = () => {
       />
     </div>
   );
-};
+});
+
+// displayName 설정으로 디버깅 시 컴포넌트 식별 용이
+Admin.displayName = 'Admin';
 
 export default Admin;
