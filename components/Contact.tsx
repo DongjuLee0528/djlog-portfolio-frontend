@@ -2,10 +2,16 @@
 import React from 'react';
 import { Mail, Linkedin, Twitter, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { CONTACT_INFO, SITE_INFO, COLORS, TYPOGRAPHY, SPACING } from '../src/constants';
 
-const Contact: React.FC = () => {
+const Contact: React.FC = React.memo(() => {
   return (
-    <footer id="contact" className="py-16 md:py-24 px-6 relative overflow-hidden bg-white">
+    <footer
+      id="contact"
+      className="py-16 md:py-24 px-6 relative overflow-hidden bg-white"
+      role="contentinfo"
+      aria-labelledby="contact-heading"
+    >
       <div className="max-w-4xl mx-auto text-center relative z-10">
         {/* 메인 연락처 섹션 */}
         <motion.div
@@ -14,7 +20,11 @@ const Contact: React.FC = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#222222] mb-6 md:mb-8 tracking-tight">
+          <h2
+            id="contact-heading"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#222222] mb-6 md:mb-8 tracking-tight"
+            tabIndex={0}
+          >
             Have a project in mind?
           </h2>
           <p className="text-lg md:text-xl text-[#333333]/70 mb-10 md:mb-12 max-w-2xl mx-auto px-4">
@@ -24,12 +34,14 @@ const Contact: React.FC = () => {
 
           {/* 이메일 연락 버튼 */}
           <motion.a
-            href="mailto:hello@example.com"
-            whileHover={{ scale: 1.05, boxShadow: "0 20px 40px -10px rgba(74, 144, 226, 0.4)" }}
+            href={`mailto:${CONTACT_INFO.EMAIL}`}
+            whileHover={{ scale: 1.05, boxShadow: `0 20px 40px -10px ${COLORS.primary}66` }}
             whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-3 px-8 py-4 md:px-10 md:py-5 bg-[#4A90E2] text-white text-base md:text-lg font-medium rounded-full transition-all duration-300 shadow-xl shadow-[#4A90E2]/20"
+            className={`inline-flex items-center gap-3 px-8 py-4 md:px-10 md:py-5 bg-[${COLORS.primary}] text-white text-base md:text-lg font-medium rounded-full transition-all duration-300 shadow-xl shadow-[${COLORS.primary}]/20`}
+            aria-label={`${CONTACT_INFO.EMAIL}로 이메일 보내기`}
+            role="button"
           >
-            <Mail className="w-5 h-5" />
+            <Mail className="w-5 h-5" aria-hidden="true" />
             Say Hello
           </motion.a>
         </motion.div>
@@ -41,23 +53,36 @@ const Contact: React.FC = () => {
           transition={{ delay: 0.4, duration: 1 }}
           viewport={{ once: true }}
           className="mt-16 md:mt-20 pt-8 md:pt-10 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center text-sm text-[#333333]/60"
+          role="group"
+          aria-label="푸터 정보"
         >
           {/* 저작권 정보 */}
-          <p>© {new Date().getFullYear()} NexBot Portfolio. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {SITE_INFO.NAME}. All rights reserved.</p>
 
           {/* 소셜 미디어 링크 */}
-          <div className="flex items-center gap-6 md:gap-8 mt-6 md:mt-0">
-            {['LinkedIn', 'Twitter', 'GitHub'].map((social) => (
-              <a 
-                key={social} 
-                href="#" 
-                className="group flex items-center hover:text-[#4A90E2] transition-colors"
+          <nav
+            className="flex items-center gap-6 md:gap-8 mt-6 md:mt-0"
+            role="navigation"
+            aria-label="소셜 미디어 링크"
+          >
+            {[
+              { name: 'LinkedIn', url: CONTACT_INFO.LINKEDIN },
+              { name: 'Twitter', url: CONTACT_INFO.TWITTER },
+              { name: 'GitHub', url: CONTACT_INFO.GITHUB }
+            ].map((social) => (
+              <a
+                key={social.name}
+                href={social.url}
+                className={`group flex items-center hover:text-[${COLORS.primary}] transition-colors`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${social.name} 프로필 방문 (새 창에서 열림)`}
               >
-                {social} 
-                <ArrowUpRight className="w-3 h-3 ml-1 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all" />
+                <span>{social.name}</span>
+                <ArrowUpRight className="w-3 h-3 ml-1 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all" aria-hidden="true" />
               </a>
             ))}
-          </div>
+          </nav>
         </motion.div>
       </div>
       
@@ -73,9 +98,12 @@ const Contact: React.FC = () => {
           ease: "easeInOut"
         }}
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-gradient-to-t from-[#A3BFD1]/30 to-transparent rounded-full blur-[80px] md:blur-[100px] -z-10 pointer-events-none"
+        aria-hidden="true"
       />
     </footer>
   );
-};
+});
+
+Contact.displayName = 'Contact';
 
 export default Contact;
