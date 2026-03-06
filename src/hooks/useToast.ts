@@ -6,7 +6,7 @@
  * 프로젝트 전체에서 통일된 스타일과 동작을 보장합니다.
  */
 import toast, { ToastOptions } from 'react-hot-toast';
-import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '../constants';
+import { SUCCESS_MESSAGES, ERROR_MESSAGES, LOADING_MESSAGES, ANIMATION_TIMING } from '../constants';
 
 /**
  * useToast 훅이 반환하는 메서드들의 인터페이스
@@ -37,7 +37,7 @@ interface ToastHook {
 
 /** 토스트 알림의 기본 스타일 및 옵션 설정 */
 const defaultOptions: ToastOptions = {
-  duration: 4000, // 4초 후 자동 닫힘
+  duration: ANIMATION_TIMING.TOAST_DURATION, // 4초 후 자동 닫힘
   position: 'top-right', // 화면 우상단에 표시
   style: {
     background: '#fff',
@@ -81,7 +81,7 @@ export const useToast = (): ToastHook => {
    * @param options 추가 토스트 옵션
    * @returns 토스트 ID (나중에 dismiss할 때 사용)
    */
-  const loading = (message: string = '처리 중...', options?: ToastOptions): string => {
+  const loading = (message: string = LOADING_MESSAGES.DEFAULT, options?: ToastOptions): string => {
     return toast.loading(message, { ...defaultOptions, ...options });
   };
 
