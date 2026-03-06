@@ -85,7 +85,6 @@ export const Modal: React.FC<ModalProps> = React.memo(({
   return (
     <AnimatePresence>
       {isOpen && (
-        {/* 모달 컨테이너 - 전체 화면 오버레이 */}
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           role="dialog"
