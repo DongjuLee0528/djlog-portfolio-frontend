@@ -2,6 +2,7 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
+import { ANIMATION_TIMING } from '../src/constants';
 
 const Hero: React.FC = memo(() => {
   // 3D 모델 로딩 상태 관리
@@ -20,7 +21,7 @@ const Hero: React.FC = memo(() => {
       if (!isModelLoaded) {
         setShowFallback(true);
       }
-    }, 5000);
+    }, ANIMATION_TIMING.HERO_TEXT_ROTATION);
 
     return () => clearTimeout(timer);
   }, [isModelLoaded]);
