@@ -36,4 +36,10 @@ export const LOADING_MESSAGES = {
   UPLOADING: '업로드하는 중...',
   LOGGING_IN: '로그인하는 중...',
   LOGGING_OUT: '로그아웃하는 중...',
+  DEFAULT: '처리 중...',
+} as const;
+
+export const PLACEHOLDER_TEXT = {
+  ADMIN_EMAIL: 'admin@example.com',
+  PASSWORD: '••••••••',
 } as const;
