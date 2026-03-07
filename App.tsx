@@ -1,4 +1,10 @@
-// 메인 App 컴포넌트 - 애플리케이션의 최상위 컴포넌트
+/**
+ * 메인 App 컴포넌트 - 애플리케이션의 최상위 컴포넌트
+ *
+ * React Router를 사용한 라우팅 설정과 전역 레이아웃을 담당합니다.
+ * 에러 바운더리, 토스트 알림, 페이지 전환 애니메이션 등을 포함합니다.
+ */
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
@@ -13,8 +19,11 @@ import Admin from './pages/Admin';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
 
-// 스크롤 복원 컴포넌트
-const ScrollToTop = () => {
+/**
+ * 페이지 변경 시 스크롤 위치를 최상단으로 복원하는 컴포넌트
+ * React Router의 페이지 전환 시 스크롤 위치가 유지되는 것을 방지합니다.
+ */
+const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
 
   React.useEffect(() => {
@@ -24,7 +33,12 @@ const ScrollToTop = () => {
   return null;
 };
 
-function App() {
+/**
+ * 메인 애플리케이션 컴포넌트
+ *
+ * @returns 전체 애플리케이션의 라우터와 레이아웃이 구성된 JSX
+ */
+function App(): JSX.Element {
   return (
     <ErrorBoundary>
       <Router>
