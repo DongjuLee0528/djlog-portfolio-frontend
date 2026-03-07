@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiClient } from '../utils/apiClient';
+import { PLACEHOLDER_TEXT } from '../src/constants';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -67,7 +68,7 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#4A90E2] focus:ring-2 focus:ring-[#4A90E2]/20 outline-none transition-all bg-[#F9FAFB]"
-                placeholder="admin@example.com"
+                placeholder={PLACEHOLDER_TEXT.ADMIN_EMAIL}
                 required
                 aria-describedby="email-help"
               />
@@ -84,7 +85,7 @@ const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-[#4A90E2] focus:ring-2 focus:ring-[#4A90E2]/20 outline-none transition-all bg-[#F9FAFB]"
-                placeholder="••••••••"
+                placeholder={PLACEHOLDER_TEXT.PASSWORD}
                 required
                 aria-describedby="password-help"
               />
