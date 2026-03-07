@@ -1,4 +1,17 @@
-// 관리자 대시보드 페이지 (View)
+/**
+ * 관리자 대시보드 페이지 컴포넌트
+ *
+ * 포트폴리오 프로젝트와 프로필 정보를 관리할 수 있는 관리자 전용 페이지입니다.
+ * 프로젝트 CRUD 기능과 프로필 편집 기능을 제공하며,
+ * 테이블 형태로 프로젝트 목록을 표시하고 모달을 통한 편집을 지원합니다.
+ *
+ * 주요 기능:
+ * - 프로젝트 목록 조회, 추가, 수정, 삭제
+ * - 프로필 정보 편집
+ * - 관리자 로그아웃
+ * - 홈 페이지로의 네비게이션
+ */
+
 import React, { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, LogOut, LayoutDashboard, ArrowLeft, Github, User } from 'lucide-react';
@@ -7,6 +20,11 @@ import { useAdmin } from '../hooks/useAdmin';
 import ProjectModal from '../components/ProjectModal';
 import ProfileModal from '../components/ProfileModal';
 
+/**
+ * 관리자 대시보드 페이지 컴포넌트
+ *
+ * @returns 관리자 대시보드 UI가 포함된 JSX
+ */
 const Admin: React.FC = memo(() => {
   const navigate = useNavigate();
 
