@@ -1,9 +1,21 @@
-// 연락처 섹션 컴포넌트 - 푸터 및 연락 정보
+/**
+ * 연락처 섹션 컴포넌트 - 푸터 및 연락 정보
+ *
+ * 사이트의 연락처 정보와 소셜 미디어 링크를 표시하는 푸터 섹션입니다.
+ * 이메일 연락 버튼과 소셜 미디어 링크를 제공하며,
+ * 배경에 애니메이션이 적용된 장식 요소를 포함합니다.
+ */
+
 import React from 'react';
 import { Mail, Linkedin, Twitter, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { CONTACT_INFO, SITE_INFO, COLORS, TYPOGRAPHY, SPACING } from '../src/constants';
 
+/**
+ * 연락처 및 푸터 컴포넌트
+ *
+ * @returns 연락처 정보와 소셜 링크가 포함된 푸터 섹션 JSX
+ */
 const Contact: React.FC = React.memo(() => {
   return (
     <footer
