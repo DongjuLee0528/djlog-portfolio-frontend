@@ -1,9 +1,21 @@
-// 404 페이지 컴포넌트 - 존재하지 않는 경로로 접근했을 때 표시
+/**
+ * 404 페이지 컴포넌트 - 존재하지 않는 경로로 접근했을 때 표시
+ *
+ * 사용자가 존재하지 않는 URL로 접근했을 때 표시되는 에러 페이지입니다.
+ * 친화적인 메시지와 함께 홈 페이지로 돌아갈 수 있는 버튼을 제공합니다.
+ * 시각적으로 명확한 에러 표시와 접근성을 고려한 ARIA 레이블을 포함합니다.
+ */
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+/**
+ * 404 에러 페이지 컴포넌트
+ *
+ * @returns 404 에러 메시지와 홈 링크가 포함된 페이지 JSX
+ */
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
 
