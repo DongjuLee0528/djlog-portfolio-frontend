@@ -1,28 +1,56 @@
-// 기술 스택 섹션 컴포넌트 - 사용하는 기술들을 카테고리별로 쇼케이스
+/**
+ * 기술 스택 섹션 컴포넌트 - 사용하는 기술들을 카테고리별로 쇼케이스
+ *
+ * 개발자의 기술 스택을 카테고리별로 정리하여 시각적으로 표시하는 컴포넌트입니다.
+ * API에서 프로필 데이터를 로드하여 동적으로 기술 스택을 렌더링하며,
+ * 각 카테고리별로 적절한 아이콘과 애니메이션을 제공합니다.
+ */
+
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { Code2, Database, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Profile } from '../types';
 import { apiClient } from '../utils/apiClient';
 
+/**
+ * 기술 스택 섹션 컴포넌트
+ *
+ * @returns 기술 스택을 카테고리별로 표시하는 섹션 JSX
+ */
 const Stack: React.FC = memo(() => {
   const [skills, setSkills] = useState<Profile['skills']>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 카테고리별 아이콘 매핑 함수 - useCallback으로 메모이제이션
+  /**
+   * 카테고리명에 따라 적절한 아이콘을 반환하는 함수
+   *
+   * 카테고리명에 특정 키워드가 포함되어 있는지 확인하여
+   * 해당하는 아이콘 컴포넌트를 반환합니다.
+   *
+   * @param category - 기술 카테고리명
+   * @returns 카테고리에 맞는 아이콘 JSX 요소
+   */
   const getIconForCategory = useCallback((category: string) => {
     const categoryLower = category.toLowerCase();
+
+    // 프로그래밍 언어 카테고리
     if (categoryLower.includes('language') || categoryLower.includes('언어')) {
       return <Code2 className="w-6 h-6 text-[#4A90E2]" />;
     }
+
+    // 도구, 데이터베이스, DevOps 카테고리
     if (categoryLower.includes('tools') || categoryLower.includes('devops') || categoryLower.includes('도구')) {
       return <Database className="w-6 h-6 text-[#4A90E2]" />;
     }
-    // 기본 아이콘
+
+    // 기본 아이콘 (웹, 프레임워크 등)
     return <Globe className="w-6 h-6 text-[#4A90E2]" />;
   }, []);
 
-  // 스킬 데이터 로드 함수 - useCallback으로 메모이제이션
+  /**
+   * API에서 프로필 데이터를 로드하여 기술 스택 정보를 가져오는 함수
+   * 로딩 상태 관리와 에러 처리를 포함합니다.
+   */
   const loadSkills = useCallback(async () => {
     try {
       const data = await apiClient<Profile>('/api/profile');
