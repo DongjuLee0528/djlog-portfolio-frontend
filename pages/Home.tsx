@@ -24,6 +24,7 @@ import Contact from '../components/Contact';
  * @returns 전체 홈 페이지 레이아웃과 섹션들을 포함한 JSX
  */
 const Home: React.FC = memo(() => {
+  console.log('🔄 Home 컴포넌트 mount/re-mount');
   return (
     <>
       <Navbar />
