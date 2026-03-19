@@ -12,7 +12,5 @@ if (!rootElement) {
 // React 18의 새로운 Root API를 사용하여 애플리케이션 렌더링
 const root = ReactDOM.createRoot(rootElement);
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <App />
 );
