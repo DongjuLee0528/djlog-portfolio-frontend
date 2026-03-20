@@ -145,14 +145,14 @@ const Admin: React.FC = memo(() => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-2">
-                        {project.links && project.links.map((link, idx) => (
+                        {project.githubLinks && project.githubLinks.map((link, idx) => (
                           <a 
                             key={idx}
                             href={link.url} 
                             target="_blank" 
                             rel="noreferrer" 
                             className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded text-xs text-[#333333] hover:bg-[#4A90E2] hover:text-white transition-colors"
-                            title={link.description}
+                            title={link.label}
                           >
                             <Github size={12} /> {link.label}
                           </a>
