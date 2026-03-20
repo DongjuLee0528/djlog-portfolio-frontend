@@ -10,9 +10,11 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/common';
+import TestNavigator from './components/TestNavigator';
 
 // 페이지 컴포넌트 import
 import Home from './pages/Home';
+import HomeOptimized from './pages/Home-optimized';
 import ProjectDetail from './pages/ProjectDetail';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
@@ -38,7 +40,7 @@ const ScrollToTop: React.FC = () => {
  *
  * @returns 전체 애플리케이션의 라우터와 레이아웃이 구성된 JSX
  */
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   return (
     <ErrorBoundary>
       <Router>
@@ -47,6 +49,7 @@ function App(): JSX.Element {
           <AnimatePresence mode="wait">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/optimized" element={<HomeOptimized />} />
               <Route path="/about" element={<About />} />
               <Route path="/project/:id" element={<ProjectDetail />} />
               <Route path="/login" element={<Login />} />
@@ -55,6 +58,7 @@ function App(): JSX.Element {
             </Routes>
           </AnimatePresence>
         </div>
+        <TestNavigator />
         <Toaster />
       </Router>
     </ErrorBoundary>
