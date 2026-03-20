@@ -35,7 +35,7 @@ interface ErrorBoundaryProps {
  *
  * 클래스 컴포넌트로 구현되어야 하는 React의 에러 경계 기능을 제공합니다.
  */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
