@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 import { Mail, Github, Award, GraduationCap, Code2, User } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Contact from '../components/Contact';
-import type { Profile } from '../types';
+import type { Profile } from '../src/types';
 import { normalizeProfile } from '../utils/normalize';
 import config from '../src/config';
+import { apiTracker } from '../utils/apiCallTracker';
 
 const About: React.FC = memo(() => {
+  console.log('🔄 About 컴포넌트 mount/re-mount');
   const [profile, setProfile] = useState<Profile>({
     name: "",
     bio: "",
@@ -23,8 +25,11 @@ const About: React.FC = memo(() => {
 
   // 프로필 데이터 로드 함수 - useCallback으로 메모이제이션
   const loadProfile = useCallback(async () => {
+    console.log('📞 About: /api/profile 호출 시작 (단일 최적화된 호출)');
+    apiTracker.track('/api/profile');
     try {
       const response = await fetch(`${config.API_URL}/api/profile`);
+      console.log('✅ About: /api/profile 응답 완료 (단일 최적화된 호출)');
       if (response.ok) {
         const data = await response.json();
         const normalizedProfile = normalizeProfile(data);
@@ -39,6 +44,7 @@ const About: React.FC = memo(() => {
 
   // 프로필 데이터 로드
   useEffect(() => {
+    console.log('⚡ About: useEffect 실행 - loadProfile 호출 (단일 최적화된 호출)');
     loadProfile();
   }, [loadProfile]);
 
