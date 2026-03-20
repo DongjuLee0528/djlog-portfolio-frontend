@@ -1,5 +1,5 @@
 // 데이터 정규화 유틸리티 함수들 - API 응답 데이터를 안전하게 정규화
-import type { Project, Profile } from '../types';
+import type { Project, Profile } from '../src/types';
 
 /**
  * 프로젝트 데이터를 정규화하여 배열 필드들이 항상 배열이 되도록 보장
