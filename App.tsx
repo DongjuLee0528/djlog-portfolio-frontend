@@ -10,7 +10,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
 import { ErrorBoundary } from './components/common';
-import TestNavigator from './components/TestNavigator';
 
 // 페이지 컴포넌트 import
 import Home from './pages/Home';
@@ -58,7 +57,6 @@ function App(): React.JSX.Element {
             </Routes>
           </AnimatePresence>
         </div>
-        <TestNavigator />
         <Toaster />
       </Router>
     </ErrorBoundary>
