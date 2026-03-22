@@ -16,7 +16,7 @@ import React, { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, LogOut, LayoutDashboard, ArrowLeft, Github, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAdmin } from '../hooks/useAdmin';
+import { useAdmin } from '../src/hooks/useAdmin';
 import ProjectModal from '../components/ProjectModal';
 import ProfileModal from '../components/ProfileModal';
 
@@ -56,8 +56,12 @@ const Admin: React.FC = memo(() => {
     updateLink,
     addQna,
     removeQna,
-    updateQna
+    updateQna,
+    moveQnaUp,
+    moveQnaDown
   } = useAdmin();
+
+  const isPublishedStatus = (status?: string) => status === 'PUBLISHED';
 
   return (
     <div className="min-h-screen bg-[#F7F7F7]">
@@ -161,11 +165,11 @@ const Admin: React.FC = memo(() => {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        project.status === 'Published' 
+                        isPublishedStatus(project.status)
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {project.status === 'Published' ? '공개됨' : '작성중'}
+                        {isPublishedStatus(project.status) ? '공개됨' : '작성중'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -216,6 +220,8 @@ const Admin: React.FC = memo(() => {
         onAddQna={addQna}
         onRemoveQna={removeQna}
         onUpdateQna={updateQna}
+        onMoveQnaUp={moveQnaUp}
+        onMoveQnaDown={moveQnaDown}
       />
 
       {/* Profile Modal Component */}
