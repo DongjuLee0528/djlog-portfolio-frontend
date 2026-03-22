@@ -35,7 +35,7 @@ export interface Profile {
   certificates: {
     name: string;
     issuer: string;
-    date: string;
+    issueDate: string;
   }[];
 
   // 기술 스택 (카테고리별 분류)

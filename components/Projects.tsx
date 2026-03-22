@@ -3,11 +3,13 @@ import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { ExternalLink, Github } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import type { Project } from '../types';
+import type { Project } from '../src/types';
 import { normalizeProjects } from '../utils/normalize';
 import config from '../src/config';
+import { apiTracker } from '../utils/apiCallTracker';
 
 const Projects: React.FC = memo(() => {
+  console.log('🔄 Projects 컴포넌트 mount/re-mount');
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,10 +49,17 @@ const Projects: React.FC = memo(() => {
     e.currentTarget.src = 'https://via.placeholder.com/800x600?text=No+Image';
   }, []);
 
+  // ⚠️ 주의: 이 컴포넌트는 이제 사용되지 않습니다.
+  // Home 페이지에서 ProjectsWithData를 사용하여 API 호출을 통합했습니다.
+  // 이 코드는 레거시 호환성을 위해 유지되지만 더 이상 사용하지 마세요.
+
   // 프로젝트 데이터 로드 함수 - useCallback으로 메모이제이션
   const loadProjects = useCallback(async () => {
+    console.log('📞 [DEPRECATED] Projects: /api/projects 호출 시작 - 이 호출은 중복됩니다!');
+    apiTracker.track('/api/projects [DEPRECATED]');
     try {
       const response = await fetch(`${config.API_URL}/api/projects`);
+      console.log('✅ [DEPRECATED] Projects: /api/projects 응답 완료 - 이 호출은 중복됩니다!');
       if (response.ok) {
         const data = await response.json();
         const normalizedProjects = normalizeProjects(data);
@@ -65,6 +74,7 @@ const Projects: React.FC = memo(() => {
 
   // 프로젝트 데이터 로드
   useEffect(() => {
+    console.log('⚡ [DEPRECATED] Projects: useEffect 실행 - 이 호출은 중복됩니다!');
     loadProjects();
   }, [loadProjects]);
 

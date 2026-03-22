@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
 import { X, Upload, Image as ImageIcon, PlusCircle, MinusCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Profile } from '../types';
+import { Profile } from '../src/types';
 import { apiClient } from '../utils/apiClient';
 
 // 프로필 모달 컴포넌트의 props 타입 정의
@@ -111,7 +111,7 @@ const ProfileModal: React.FC<ProfileModalProps> = memo(({
   const addCertificate = useCallback(() => {
     setFormData({
       ...formData,
-      certificates: [...formData.certificates, { name: '', issuer: '', date: '' }]
+      certificates: [...formData.certificates, { name: '', issuer: '', issueDate: '' }]
     });
   }, [formData, setFormData]);
 
@@ -409,8 +409,8 @@ const ProfileModal: React.FC<ProfileModalProps> = memo(({
                         />
                         <input 
                           placeholder="취득일 (예: 2023.05)" 
-                          value={cert.date} 
-                          onChange={(e) => updateCertificate(idx, 'date', e.target.value)}
+                          value={cert.issueDate} 
+                          onChange={(e) => updateCertificate(idx, 'issueDate', e.target.value)}
                           className="px-3 py-2 rounded-lg border border-gray-200 outline-none"
                         />
                       </div>

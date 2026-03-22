@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ExternalLink, Github, Calendar, Users, Code2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Project } from '../types';
+import type { Project } from '../src/types';
 import { normalizeProject, normalizeProjects } from '../utils/normalize';
 import config from '../src/config';
 

@@ -9,8 +9,9 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { Code2, Database, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { Profile } from '../types';
+import type { Profile } from '../src/types';
 import { apiClient } from '../utils/apiClient';
+import { apiTracker } from '../utils/apiCallTracker';
 
 /**
  * 기술 스택 섹션 컴포넌트
@@ -18,6 +19,7 @@ import { apiClient } from '../utils/apiClient';
  * @returns 기술 스택을 카테고리별로 표시하는 섹션 JSX
  */
 const Stack: React.FC = memo(() => {
+  console.log('🔄 Stack 컴포넌트 mount/re-mount');
   const [skills, setSkills] = useState<Profile['skills']>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,9 +53,16 @@ const Stack: React.FC = memo(() => {
    * API에서 프로필 데이터를 로드하여 기술 스택 정보를 가져오는 함수
    * 로딩 상태 관리와 에러 처리를 포함합니다.
    */
+  // ⚠️ 주의: 이 컴포넌트는 이제 사용되지 않습니다.
+  // Home 페이지에서 StackWithData를 사용하여 API 호출을 통합했습니다.
+  // 이 코드는 레거시 호환성을 위해 유지되지만 더 이상 사용하지 마세요.
+
   const loadSkills = useCallback(async () => {
+    console.log('📞 [DEPRECATED] Stack: /api/profile 호출 시작 - 이 호출은 중복됩니다!');
+    apiTracker.track('/api/profile [DEPRECATED]');
     try {
       const data = await apiClient<Profile>('/api/profile');
+      console.log('✅ [DEPRECATED] Stack: /api/profile 응답 완료 - 이 호출은 중복됩니다!');
       setSkills(data.skills || []);
     } catch (error) {
       console.error('Failed to load skills:', error);
@@ -64,6 +73,7 @@ const Stack: React.FC = memo(() => {
 
   // 프로필에서 기술 스택 데이터 로드
   useEffect(() => {
+    console.log('⚡ [DEPRECATED] Stack: useEffect 실행 - 이 호출은 중복됩니다!');
     loadSkills();
   }, [loadSkills]);
 

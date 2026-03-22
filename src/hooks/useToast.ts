@@ -5,6 +5,7 @@
  * 성공, 에러, 로딩, Promise 처리 등 다양한 토스트 유형을 지원하며,
  * 프로젝트 전체에서 통일된 스타일과 동작을 보장합니다.
  */
+import { useCallback, useMemo } from 'react';
 import toast, { ToastOptions } from 'react-hot-toast';
 import { SUCCESS_MESSAGES, ERROR_MESSAGES, LOADING_MESSAGES, ANIMATION_TIMING } from '../constants';
 
@@ -62,18 +63,18 @@ export const useToast = (): ToastHook => {
    * @param message 표시할 성공 메시지 (기본값: 프로젝트 저장 성공 메시지)
    * @param options 추가 토스트 옵션
    */
-  const success = (message: string = SUCCESS_MESSAGES.PROJECT_SAVED, options?: ToastOptions) => {
+  const success = useCallback((message: string = SUCCESS_MESSAGES.PROJECT_SAVED, options?: ToastOptions) => {
     toast.success(message, { ...defaultOptions, ...options });
-  };
+  }, []);
 
   /**
    * 에러 메시지 토스트를 표시합니다
    * @param message 표시할 에러 메시지 (기본값: 일반 에러 메시지)
    * @param options 추가 토스트 옵션
    */
-  const error = (message: string = ERROR_MESSAGES.GENERIC, options?: ToastOptions) => {
+  const error = useCallback((message: string = ERROR_MESSAGES.GENERIC, options?: ToastOptions) => {
     toast.error(message, { ...defaultOptions, ...options });
-  };
+  }, []);
 
   /**
    * 로딩 메시지 토스트를 표시합니다
@@ -81,21 +82,21 @@ export const useToast = (): ToastHook => {
    * @param options 추가 토스트 옵션
    * @returns 토스트 ID (나중에 dismiss할 때 사용)
    */
-  const loading = (message: string = LOADING_MESSAGES.DEFAULT, options?: ToastOptions): string => {
+  const loading = useCallback((message: string = LOADING_MESSAGES.DEFAULT, options?: ToastOptions): string => {
     return toast.loading(message, { ...defaultOptions, ...options });
-  };
+  }, []);
 
   /**
    * 특정 토스트를 닫거나 모든 토스트를 닫습니다
    * @param toastId 닫을 토스트의 ID (생략 시 모든 토스트를 닫음)
    */
-  const dismiss = (toastId?: string) => {
+  const dismiss = useCallback((toastId?: string) => {
     if (toastId) {
       toast.dismiss(toastId);
     } else {
       toast.dismiss();
     }
-  };
+  }, []);
 
   /**
    * Promise의 상태에 따라 자동으로 토스트를 관리합니다
@@ -105,7 +106,7 @@ export const useToast = (): ToastHook => {
    * @param options 추가 토스트 옵션
    * @returns 원본 Promise (체이닝 가능)
    */
-  const promise = <T>(
+  const promise = useCallback(<T,>(
     promise: Promise<T>,
     messages: {
       loading: string;
@@ -119,14 +120,14 @@ export const useToast = (): ToastHook => {
       messages,
       { ...defaultOptions, ...options }
     );
-  };
+  }, []);
 
   // 모든 토스트 메서드를 포함하는 객체 반환
-  return {
+  return useMemo(() => ({
     success,
     error,
     loading,
     dismiss,
     promise,
-  };
+  }), [success, error, loading, dismiss, promise]);
 };

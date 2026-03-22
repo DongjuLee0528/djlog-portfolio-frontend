@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { X, ExternalLink, MinusCircle, PlusCircle, Image as ImageIcon, Upload, Link as LinkIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Project } from '../types';
+import { Project } from '../src/types';
 import { apiClient } from '../utils/apiClient';
 
 // 프로젝트 모달 컴포넌트의 props 타입 정의
