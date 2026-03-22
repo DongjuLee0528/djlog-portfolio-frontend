@@ -190,7 +190,7 @@ const About: React.FC = memo(() => {
                     <div key={idx} className="border-l-2 border-gray-100 pl-4">
                       <h4 className="font-bold text-[#222222]">{cert.name}</h4>
                       <p className="text-sm text-[#333333]/70">{cert.issuer}</p>
-                      <p className="text-xs text-[#333333]/50 mt-1">{cert.date}</p>
+                      <p className="text-xs text-[#333333]/50 mt-1">{cert.issueDate}</p>
                     </div>
                   ))}
                 </div>
