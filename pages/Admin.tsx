@@ -149,7 +149,7 @@ const Admin: React.FC = memo(() => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-2">
-                        {project.githubLinks && project.githubLinks.map((link, idx) => (
+                        {project.links && project.links.map((link, idx) => (
                           <a 
                             key={idx}
                             href={link.url} 
