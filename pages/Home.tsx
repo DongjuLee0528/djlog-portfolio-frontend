@@ -12,6 +12,7 @@
  */
 
 import React, { memo, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import Contact from '../components/Contact';
@@ -26,7 +27,7 @@ import { apiTracker } from '../utils/apiCallTracker';
  * @returns 전체 홈 페이지 레이아웃과 섹션들을 포함한 JSX
  */
 // Projects 컴포넌트 (props로 데이터 받음)
-const ProjectsWithData: React.FC<{ projects: Project[], isLoading: boolean }> = memo(({ projects, isLoading }) => {
+const ProjectsWithData: React.FC<{ projects: Project[], isLoading: boolean, onProjectClick: (id?: string) => void }> = memo(({ projects, isLoading, onProjectClick }) => {
   console.log('🔄 ProjectsWithData 컴포넌트 mount/re-mount (props로 데이터 받음)');
 
   if (isLoading) {
@@ -56,7 +57,19 @@ const ProjectsWithData: React.FC<{ projects: Project[], isLoading: boolean }> = 
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8" role="list" aria-label="프로젝트 목록">
           {projects.map((project) => (
-            <div key={project.id} className="group bg-[#F7F7F7] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer" role="listitem">
+            <div
+              key={project.id}
+              className="group bg-[#F7F7F7] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 cursor-pointer"
+              role="listitem"
+              tabIndex={0}
+              onClick={() => onProjectClick(project.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onProjectClick(project.id);
+                }
+              }}
+            >
               <div className="aspect-video w-full overflow-hidden relative">
                 <img src={project.image} alt={`${project.title} 프로젝트 스크린샷`} loading="lazy" className="w-full h-full object-cover" />
               </div>
@@ -128,6 +141,7 @@ const StackWithData: React.FC<{ skills: Profile['skills'], isLoading: boolean }>
 
 const Home: React.FC = memo(() => {
   console.log('🔄 Home 컴포넌트 mount/re-mount');
+  const navigate = useNavigate();
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -151,7 +165,8 @@ const Home: React.FC = memo(() => {
 
       if (projectsResponse.ok) {
         const projectsData = await projectsResponse.json();
-        setProjects(normalizeProjects(projectsData));
+        const normalizedProjects = normalizeProjects(projectsData);
+        setProjects(normalizedProjects.filter((project) => project.status === 'PUBLISHED'));
       }
 
       if (profileResponse.ok) {
@@ -170,12 +185,17 @@ const Home: React.FC = memo(() => {
     loadAllData();
   }, [loadAllData]);
 
+  const handleProjectClick = useCallback((id?: string) => {
+    if (!id) return;
+    navigate(`/project/${id}`);
+  }, [navigate]);
+
   return (
     <>
       <Navbar />
       <main role="main" aria-label="메인 콘텐츠">
         <Hero />
-        <ProjectsWithData projects={projects} isLoading={isLoading} />
+        <ProjectsWithData projects={projects} isLoading={isLoading} onProjectClick={handleProjectClick} />
         {profile && <StackWithData skills={profile.skills} isLoading={isLoading} />}
       </main>
       <Contact />
