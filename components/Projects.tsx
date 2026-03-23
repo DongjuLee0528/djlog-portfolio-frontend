@@ -40,7 +40,8 @@ const Projects: React.FC = memo(() => {
   }), []);
 
   // 프로젝트 클릭 핸들러 - useCallback으로 메모이제이션
-  const handleProjectClick = useCallback((id: number) => {
+  const handleProjectClick = useCallback((id?: string) => {
+    if (!id) return;
     navigate(`/project/${id}`);
   }, [navigate]);
 
