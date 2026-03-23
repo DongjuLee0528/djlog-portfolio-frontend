@@ -1,7 +1,7 @@
 // 관리자 대시보드를 위한 커스텀 훅 - 프로젝트/프로필 관리 로직 및 상태 제공
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Project, Profile } from '../types';
+import { Project, Profile, ProfileSkillPayloadItem, ProjectQnaItem } from '../types';
 import { normalizeProject, normalizeProfile, normalizeProjects } from '../../utils/normalize';
 import { apiClient } from '../../utils/apiClient';
 import { useToast } from './useToast';
@@ -18,6 +18,34 @@ import { ERROR_MESSAGES, SUCCESS_MESSAGES, CONFIRM_MESSAGES, LOADING_MESSAGES } 
 export const useAdmin = () => {
   const navigate = useNavigate();
   const toast = useToast();
+
+  const getDefaultQnaList = (): ProjectQnaItem[] => [
+    { question: 'Q. 어떤 프로젝트인가요?', answer: '', displayOrder: 1 },
+    { question: 'Q. 나의 역할은 무엇이었나요?', answer: '', displayOrder: 2 },
+    { question: 'Q. 왜 이 기술을 사용했나요?', answer: '', displayOrder: 3 },
+    { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '', displayOrder: 4 }
+  ];
+
+  const normalizeQnaList = (qnaList: ProjectQnaItem[]): ProjectQnaItem[] => {
+    return qnaList.map((item, index) => ({
+      ...item,
+      displayOrder: index + 1,
+    }));
+  };
+
+  const buildProfileSkillsPayload = (skills: Profile['skills']): ProfileSkillPayloadItem[] => {
+    return skills.flatMap((skillGroup) => {
+      const category = skillGroup.category.trim();
+
+      return skillGroup.items
+        .map((item) => item.trim())
+        .filter((item) => item !== '')
+        .map((item) => ({
+          name: item,
+          category,
+        }));
+    });
+  };
   
   // --- 프로젝트 관련 상태 ---
   const [projects, setProjects] = useState<Project[]>([]);
@@ -47,20 +75,14 @@ export const useAdmin = () => {
   
   // 폼 상태 관리 (프로젝트)
   const [formData, setFormData] = useState<Project>({
-    id: 0,
     title: '',
     category: '',
     status: 'DRAFT',
     description: '',
     tags: [],
     image: '',
-    githubLinks: [{ label: 'GitHub', url: '' }],
-    qna: [
-      { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-      { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-      { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-      { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-    ]
+    links: [{ label: 'GitHub', url: '' }],
+    qnaList: getDefaultQnaList()
   });
 
   // 폼 상태 관리 (프로필)
@@ -87,36 +109,26 @@ export const useAdmin = () => {
       return {
         ...project,
         status: project.status || 'DRAFT',
+        tags: Array.isArray(project.tags) ? project.tags : [],
         image: project.image || '',
-        githubLinks: project.githubLinks && project.githubLinks.length > 0 
-          ? project.githubLinks 
+        links: project.links && project.links.length > 0
+          ? project.links
           : [{ label: 'GitHub', url: '' }],
-        qna: project.qna && project.qna.length > 0 
-          ? project.qna 
-          : [
-              { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-              { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-              { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-              { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-            ]
+        qnaList: project.qnaList && project.qnaList.length > 0
+          ? normalizeQnaList(project.qnaList)
+          : getDefaultQnaList()
       };
     } else {
       // 신규 생성 모드: 기본값으로 초기화
       return {
-        id: 0,
         title: '',
         category: '',
         status: 'DRAFT',
         description: '',
         tags: [],
         image: '',
-        githubLinks: [{ label: 'GitHub', url: '' }],
-        qna: [
-          { question: 'Q. 어떤 프로젝트인가요?', answer: '' },
-          { question: 'Q. 나의 역할은 무엇이었나요?', answer: '' },
-          { question: 'Q. 왜 이 기술을 사용했나요?', answer: '' },
-          { question: 'Q. 가장 어려웠던 점과 해결 방법은?', answer: '' }
-        ]
+        links: [{ label: 'GitHub', url: '' }],
+        qnaList: getDefaultQnaList()
       };
     }
   };
@@ -178,7 +190,9 @@ export const useAdmin = () => {
   }, [navigate, toast]);
 
   // --- 프로젝트 관련 핸들러 ---
-  const handleDelete = useCallback(async (id: number) => {
+  const handleDelete = useCallback(async (id?: string) => {
+    if (!id) return;
+
     if (window.confirm(CONFIRM_MESSAGES.DELETE_PROJECT)) {
       const loadingToast = toast.loading(LOADING_MESSAGES.DELETING);
       try {
@@ -204,15 +218,26 @@ export const useAdmin = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.image?.trim()) {
+      toast.error('대표 이미지를 업로드하거나 URL을 입력하세요');
+      return;
+    }
+
+    const { id, qna, qnaList, githubLinks: _legacyGithubLinks, ...projectPayload } = formData;
+
+    const cleanedQnaList = normalizeQnaList(
+      (qnaList || []).filter((item: any) => item.question.trim() !== '' && item.answer.trim() !== '')
+    );
+
     const cleanedData = {
-      ...formData,
-      githubLinks: formData.githubLinks?.filter((link: any) => link.url.trim() !== '') || [],
-      qna: formData.qna?.filter((item: any) => item.question.trim() !== '' && item.answer.trim() !== '') || []
+      ...projectPayload,
+      links: formData.links?.filter((link: any) => link.url.trim() !== '') || [],
+      qnaList: cleanedQnaList
     };
 
     const loadingToast = toast.loading(LOADING_MESSAGES.SAVING);
     try {
-      if (editingProject) {
+      if (editingProject?.id) {
         // 프로젝트 수정
         const updatedProject = await apiClient<Project>(`/api/projects/${editingProject.id}`, {
           method: 'PUT',
@@ -223,6 +248,7 @@ export const useAdmin = () => {
         const normalizedProject = normalizeProject(updatedProject);
         setProjects(projects.map((p: Project) => p.id === editingProject.id ? normalizedProject : p));
         setIsModalOpen(false);
+        setEditingProject(null);
         toast.success(SUCCESS_MESSAGES.PROJECT_SAVED);
       } else {
         // 프로젝트 생성
@@ -235,6 +261,7 @@ export const useAdmin = () => {
         const normalizedProject = normalizeProject(newProject);
         setProjects([...projects, normalizedProject]);
         setIsModalOpen(false);
+        setEditingProject(null);
         toast.success(SUCCESS_MESSAGES.PROJECT_SAVED);
       }
     } catch (error) {
@@ -254,11 +281,16 @@ export const useAdmin = () => {
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const profilePayload = {
+      ...profileFormData,
+      skills: buildProfileSkillsPayload(profileFormData.skills),
+    };
+
     const loadingToast = toast.loading(LOADING_MESSAGES.SAVING);
     try {
       const updatedProfile = await apiClient<Profile>('/api/profile', {
         method: 'PUT',
-        body: JSON.stringify(profileFormData),
+        body: JSON.stringify(profilePayload),
       });
 
       // 응답 데이터를 정규화
@@ -278,48 +310,55 @@ export const useAdmin = () => {
   const addLink = () => {
     setFormData({
       ...formData,
-      githubLinks: [...(formData.githubLinks || []), { label: '', url: '' }]
+      links: [...(formData.links || []), { label: '', url: '' }]
     });
   };
 
   const removeLink = (index: number) => {
-    const newLinks = formData.githubLinks?.filter((_: any, i: number) => i !== index) || [];
-    setFormData({ ...formData, githubLinks: newLinks });
+    const newLinks = formData.links?.filter((_: any, i: number) => i !== index) || [];
+    setFormData({ ...formData, links: newLinks });
   };
 
   const updateLink = (index: number, field: 'label' | 'url', value: string) => {
-    const newLinks = [...(formData.githubLinks || [])];
+    const newLinks = [...(formData.links || [])];
     newLinks[index] = { ...newLinks[index], [field]: value };
-    setFormData({ ...formData, githubLinks: newLinks });
+    setFormData({ ...formData, links: newLinks });
   };
 
   // 프로젝트 Q&A 섹션 관리 핸들러들
   const addQna = (questionText: string = 'Q. ') => {
-    setFormData({
-      ...formData,
-      qna: [...(formData.qna || []), { question: questionText, answer: '' }]
-    });
+    setFormData((prev) => ({
+      ...prev,
+      qnaList: normalizeQnaList([...(prev.qnaList || []), { question: questionText, answer: '' }])
+    }));
   };
 
   const removeQna = (index: number) => {
-    const newQna = formData.qna?.filter((_: any, i: number) => i !== index) || [];
-    setFormData({ ...formData, qna: newQna });
+    setFormData((prev) => ({
+      ...prev,
+      qnaList: normalizeQnaList(prev.qnaList?.filter((_: any, i: number) => i !== index) || [])
+    }));
   };
 
-  const updateQna = (index: number, field: 'question' | 'answer', value: string) => {
-    const newQna = [...(formData.qna || [])];
-    newQna[index] = { ...newQna[index], [field]: value };
-    setFormData({ ...formData, qna: newQna });
+  const updateQna = (index: number, field: keyof ProjectQnaItem, value: string) => {
+    setFormData((prev) => {
+      const nextQnaList = [...(prev.qnaList || [])];
+      nextQnaList[index] = { ...nextQnaList[index], [field]: value };
+      return { ...prev, qnaList: normalizeQnaList(nextQnaList) };
+    });
   };
 
   const moveQna = (fromIndex: number, toIndex: number) => {
-    const currentQna = formData.qna || [];
-    if (toIndex < 0 || toIndex >= currentQna.length) return;
+    setFormData((prev) => {
+      const currentQnaList = prev.qnaList || [];
+      if (toIndex < 0 || toIndex >= currentQnaList.length) return prev;
 
-    const newQna = [...currentQna];
-    const [movedItem] = newQna.splice(fromIndex, 1);
-    newQna.splice(toIndex, 0, movedItem);
-    setFormData({ ...formData, qna: newQna });
+      const nextQnaList = [...currentQnaList];
+      const [movedItem] = nextQnaList.splice(fromIndex, 1);
+      nextQnaList.splice(toIndex, 0, movedItem);
+
+      return { ...prev, qnaList: normalizeQnaList(nextQnaList) };
+    });
   };
 
   const moveQnaUp = (index: number) => {
