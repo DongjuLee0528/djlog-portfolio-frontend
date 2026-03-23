@@ -3,6 +3,7 @@
  */
 
 import React, { memo, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import Contact from '../components/Contact';
@@ -11,7 +12,7 @@ import { normalizeProjects, normalizeProfile } from '../utils/normalize';
 import config from '../src/config';
 
 // Projects 컴포넌트 (props로 데이터 받음)
-const ProjectsOptimized: React.FC<{ projects: Project[] }> = memo(({ projects }) => {
+const ProjectsOptimized: React.FC<{ projects: Project[], onProjectClick: (id?: string) => void }> = memo(({ projects, onProjectClick }) => {
   console.log('🔄 ProjectsOptimized 컴포넌트 mount/re-mount (props로 데이터 받음)');
 
   // 기존 Projects 컴포넌트의 렌더링 로직만 사용
@@ -28,7 +29,18 @@ const ProjectsOptimized: React.FC<{ projects: Project[] }> = memo(({ projects })
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {projects.map((project) => (
-            <div key={project.id} className="bg-[#F7F7F7] rounded-2xl overflow-hidden">
+            <div
+              key={project.id}
+              className="bg-[#F7F7F7] rounded-2xl overflow-hidden cursor-pointer"
+              tabIndex={0}
+              onClick={() => onProjectClick(project.id)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onProjectClick(project.id);
+                }
+              }}
+            >
               <div className="aspect-video w-full">
                 <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
               </div>
@@ -85,6 +97,7 @@ const StackOptimized: React.FC<{ skills: Profile['skills'] }> = memo(({ skills }
  */
 const HomeOptimized: React.FC = memo(() => {
   console.log('🔄 HomeOptimized 컴포넌트 mount/re-mount');
+  const navigate = useNavigate();
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -124,6 +137,11 @@ const HomeOptimized: React.FC = memo(() => {
     loadAllData();
   }, [loadAllData]);
 
+  const handleProjectClick = useCallback((id?: string) => {
+    if (!id) return;
+    navigate(`/project/${id}`);
+  }, [navigate]);
+
   if (isLoading) {
     return (
       <div className="bg-[#F7F7F7] min-h-screen flex items-center justify-center">
@@ -137,7 +155,7 @@ const HomeOptimized: React.FC = memo(() => {
       <Navbar />
       <main role="main" aria-label="메인 콘텐츠">
         <Hero />
-        <ProjectsOptimized projects={projects} />
+        <ProjectsOptimized projects={projects} onProjectClick={handleProjectClick} />
         {profile && <StackOptimized skills={profile.skills} />}
       </main>
       <Contact />
