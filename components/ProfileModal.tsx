@@ -107,6 +107,27 @@ const ProfileModal: React.FC<ProfileModalProps> = memo(({
     setFormData({ ...formData, education: newEdu });
   }, [formData, setFormData]);
 
+  // 성과(리더십, 수상 등) 추가/삭제/수정
+  const addAchievement = useCallback(() => {
+    setFormData({
+      ...formData,
+      achievements: [...(formData.achievements || []), { title: '', organization: '', description: '', period: '', category: 'leadership' }]
+    });
+  }, [formData, setFormData]);
+
+  const removeAchievement = useCallback((index: number) => {
+    setFormData({
+      ...formData,
+      achievements: formData.achievements.filter((_, i) => i !== index)
+    });
+  }, [formData, setFormData]);
+
+  const updateAchievement = useCallback((index: number, field: string, value: string) => {
+    const newAchieve = [...formData.achievements];
+    newAchieve[index] = { ...newAchieve[index], [field]: value };
+    setFormData({ ...formData, achievements: newAchieve });
+  }, [formData, setFormData]);
+
   // 자격증 추가/삭제/수정 - useCallback으로 메모이제이션
   const addCertificate = useCallback(() => {
     setFormData({
@@ -379,6 +400,87 @@ const ProfileModal: React.FC<ProfileModalProps> = memo(({
                   ))}
                 </div>
 
+                {/* 성과 (Leadership & Awards) */}
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-sm font-bold text-[#4A90E2] uppercase tracking-wider">경험 & 수상 (Leadership & Awards)</h3>
+                    <button
+                      type="button"
+                      onClick={addAchievement}
+                      className="text-sm text-[#4A90E2] flex items-center gap-1 hover:underline"
+                      aria-label="경험 및 수상 추가"
+                    >
+                      <PlusCircle size={16} aria-hidden="true" /> 추가
+                    </button>
+                  </div>
+                  {(formData.achievements || []).map((achieve, idx) => (
+                    <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative">
+                      <button 
+                        type="button" 
+                        onClick={() => removeAchievement(idx)} 
+                        className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                        aria-label={`경험 및 수상 ${idx + 1} 삭제`}
+                      >
+                        <X size={16} aria-hidden="true" />
+                      </button>
+                      <div className="space-y-3 mt-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-bold text-[#333333]/60 mb-1">제목 (Title)</label>
+                            <input 
+                              placeholder="예: IT 동아리 회장" 
+                              value={achieve.title} 
+                              onChange={(e) => updateAchievement(idx, 'title', e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none bg-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-[#333333]/60 mb-1">소속/기관 (Organization)</label>
+                            <input 
+                              placeholder="예: 한국대학생IT연합" 
+                              value={achieve.organization} 
+                              onChange={(e) => updateAchievement(idx, 'organization', e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none bg-white"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-bold text-[#333333]/60 mb-1">카테고리</label>
+                            <select 
+                              value={achieve.category}
+                              onChange={(e) => updateAchievement(idx, 'category', e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none bg-white"
+                            >
+                              <option value="leadership">Leadership (리더십)</option>
+                              <option value="mentoring">Mentoring (멘토링)</option>
+                              <option value="award">Award (수상)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-[#333333]/60 mb-1">기간/날짜</label>
+                            <input 
+                              placeholder="예: 2023.03 - 2023.12" 
+                              value={achieve.period} 
+                              onChange={(e) => updateAchievement(idx, 'period', e.target.value)}
+                              className="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none bg-white"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-[#333333]/60 mb-1">상세 설명</label>
+                          <textarea 
+                            placeholder="역할과 성과를 설명해주세요..." 
+                            value={achieve.description} 
+                            onChange={(e) => updateAchievement(idx, 'description', e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none bg-white h-20 resize-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 {/* 자격증 */}
                 <div className="space-y-4 pt-4 border-t border-gray-100">
                   <div className="flex justify-between items-center">
@@ -409,7 +511,7 @@ const ProfileModal: React.FC<ProfileModalProps> = memo(({
                         />
                         <input 
                           placeholder="취득일 (예: 2023.05)" 
-                          value={cert.issueDate} 
+                          value={cert.issueDate}
                           onChange={(e) => updateCertificate(idx, 'issueDate', e.target.value)}
                           className="px-3 py-2 rounded-lg border border-gray-200 outline-none"
                         />
