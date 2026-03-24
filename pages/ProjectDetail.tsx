@@ -11,7 +11,7 @@ const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>(); // URL에서 프로젝트 ID 추출
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null); // 프로젝트 데이터 상태
-  const [nextProjectId, setNextProjectId] = useState<number | null>(null); // 다음 프로젝트 ID
+  const [nextProjectId, setNextProjectId] = useState<string | null>(null); // 다음 프로젝트 ID
   const [nextProjectTitle, setNextProjectTitle] = useState<string>(""); // 다음 프로젝트 제목
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태
 
@@ -41,10 +41,8 @@ const ProjectDetail: React.FC = () => {
         if (listResponse.ok) {
           const listData = await listResponse.json();
           const projects = normalizeProjects(listData);
-          
-          // ID 기준으로 정렬
-          const sortedProjects = projects.sort((a, b) => a.id - b.id);
-          const currentIndex = sortedProjects.findIndex(p => p.id === Number(id));
+          const sortedProjects = projects;
+          const currentIndex = sortedProjects.findIndex((p) => p.id === id);
           
           if (currentIndex !== -1 && sortedProjects.length > 0) {
             // 다음 인덱스 계산 (마지막이면 0으로 순환)
@@ -73,6 +71,10 @@ const ProjectDetail: React.FC = () => {
   // 이미지 로드 실패 시 대체 이미지 처리
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = 'https://via.placeholder.com/1200x600?text=No+Image';
+  };
+
+  const getStatusLabel = (status?: Project['status']) => {
+    return status === 'PUBLISHED' ? '공개됨' : '작성중';
   };
 
   // 스크롤을 최상단으로 이동
@@ -176,7 +178,7 @@ const ProjectDetail: React.FC = () => {
             <h3 className="text-xs font-bold text-[#4A90E2] uppercase tracking-wider mb-2 flex items-center gap-2">
               <Calendar size={14} /> Status
             </h3>
-            <p className="text-[#333333] font-medium">{project.status || 'Published'}</p>
+            <p className="text-[#333333] font-medium">{getStatusLabel(project.status)}</p>
           </div>
           <div className="flex-1 min-w-[200px]">
              <h3 className="text-xs font-bold text-[#4A90E2] uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -190,14 +192,14 @@ const ProjectDetail: React.FC = () => {
               ))}
             </div>
           </div>
-          {(project.githubLinks && project.githubLinks.length > 0) || project.demoLink ? (
+          {(project.links && project.links.length > 0) || project.demoLink ? (
             <div className="flex gap-3 items-end">
               {project.demoLink && (
                 <a href={project.demoLink} className="p-2 bg-[#222222] text-white rounded-full hover:bg-black transition-colors" title="Live Demo">
                   <ExternalLink size={18} />
                 </a>
               )}
-              {project.githubLinks && project.githubLinks.map((link, idx) => (
+              {project.links && project.links.map((link, idx) => (
                 <a key={idx} href={link.url} className="p-2 bg-white border border-gray-200 text-[#333333] rounded-full hover:border-[#4A90E2] hover:text-[#4A90E2] transition-colors" title={link.label}>
                   <Github size={18} />
                 </a>
@@ -207,9 +209,9 @@ const ProjectDetail: React.FC = () => {
         </div>
 
         {/* Q&A 아코디언 섹션 */}
-        {project.qna && project.qna.length > 0 && (
+        {project.qnaList && project.qnaList.length > 0 && (
           <section className="space-y-4">
-            {project.qna.map((item, index) => (
+            {project.qnaList.map((item, index) => (
             <motion.div 
               key={index}
               initial={{ opacity: 0, y: 20 }}
