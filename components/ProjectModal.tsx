@@ -1,8 +1,8 @@
 // 프로젝트 생성/수정 모달 컴포넌트 - 프로젝트 CRUD 관리를 위한 폼 모달
 import React, { useRef, useState, useEffect, memo, useMemo, useCallback } from 'react';
-import { X, ExternalLink, MinusCircle, PlusCircle, Image as ImageIcon, Upload, Link as LinkIcon } from 'lucide-react';
+import { X, ExternalLink, MinusCircle, PlusCircle, Image as ImageIcon, Upload, Link as LinkIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Project } from '../src/types';
+import { Project, ProjectStatus } from '../src/types';
 import { apiClient } from '../utils/apiClient';
 
 // 프로젝트 모달 컴포넌트의 props 타입 정의
@@ -19,6 +19,8 @@ interface ProjectModalProps {
   onAddQna: (questionText?: string) => void; // Q&A 추가 핸들러 (추천 질문 텍스트 옵션)
   onRemoveQna: (index: number) => void; // Q&A 삭제 핸들러
   onUpdateQna: (index: number, field: 'question' | 'answer', value: string) => void; // Q&A 수정 핸들러
+  onMoveQnaUp: (index: number) => void; // Q&A 위로 이동 핸들러
+  onMoveQnaDown: (index: number) => void; // Q&A 아래로 이동 핸들러
 }
 
 const ProjectModal: React.FC<ProjectModalProps> = memo(({
@@ -33,10 +35,14 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
   onUpdateLink,
   onAddQna,
   onRemoveQna,
-  onUpdateQna
+  onUpdateQna,
+  onMoveQnaUp,
+  onMoveQnaDown
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState('');
+  const [tagInput, setTagInput] = useState('');
 
   // 프로젝트 Q&A 섹션에서 자주 사용되는 추천 질문 리스트 - useMemo로 메모이제이션
   const recommendedQuestions = useMemo(() => [
@@ -53,6 +59,7 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
     const file = e.target.files?.[0];
     if (file) {
       setIsUploading(true);
+      setUploadedFileName(file.name);
       const formDataUpload = new FormData();
       formDataUpload.append('file', file);
 
@@ -61,15 +68,16 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
           method: 'POST',
           body: formDataUpload,
         });
-        setFormData({ ...formData, image: data.url });
+        setFormData((prev) => ({ ...prev, image: data.url }));
       } catch (error) {
         console.error('File upload error:', error);
+        setUploadedFileName('');
         alert('파일 업로드 중 오류가 발생했습니다.');
       } finally {
         setIsUploading(false);
       }
     }
-  }, [formData, setFormData]);
+  }, [setFormData]);
 
   // 파일 업로드 버튼 클릭 핸들러 - useCallback으로 메모이제이션
   const handleFileButtonClick = useCallback(() => {
@@ -78,9 +86,10 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
 
   // 이미지 제거 핸들러 - useCallback으로 메모이제이션
   const handleImageRemove = useCallback(() => {
-    setFormData({...formData, image: ''});
+    setFormData((prev) => ({ ...prev, image: '' }));
+    setUploadedFileName('');
     if (fileInputRef.current) fileInputRef.current.value = '';
-  }, [formData, setFormData]);
+  }, [setFormData]);
 
   // 모달이 열릴 때 body 스크롤 잠금과 포커스 관리
   useEffect(() => {
@@ -98,6 +107,37 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setUploadedFileName('');
+      setTagInput('');
+    }
+  }, [isOpen]);
+
+  const addTag = useCallback(() => {
+    const nextTag = tagInput.trim();
+    if (!nextTag) return;
+
+    setFormData((prev) => {
+      if (prev.tags.includes(nextTag)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        tags: [...prev.tags, nextTag]
+      };
+    });
+    setTagInput('');
+  }, [setFormData, tagInput]);
+
+  const removeTag = useCallback((tagToRemove: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove)
+    }));
+  }, [setFormData]);
 
   // ESC 키로 모달 닫기
   useEffect(() => {
@@ -212,12 +252,12 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
                       </label>
                       <select
                         id="project-status"
-                        value={formData.status || 'Draft'}
-                        onChange={(e) => setFormData({...formData, status: e.target.value as 'Published' | 'Draft'})}
+                        value={formData.status || 'DRAFT'}
+                        onChange={(e) => setFormData({...formData, status: e.target.value as ProjectStatus})}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none bg-white"
                       >
-                        <option value="Draft">작성중 (Draft)</option>
-                        <option value="Published">공개됨 (Published)</option>
+                        <option value="DRAFT">작성중 (Draft)</option>
+                        <option value="PUBLISHED">공개됨 (Published)</option>
                       </select>
                     </div>
                   </div>
@@ -239,6 +279,64 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
                   </div>
                 </div>
 
+                {/* Tech Stack Section */}
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-sm font-bold text-[#4A90E2] uppercase tracking-wider">Tech Stack</h3>
+                    <button
+                      type="button"
+                      onClick={addTag}
+                      className="text-sm text-[#4A90E2] font-medium flex items-center gap-1 hover:underline"
+                      aria-label="기술 스택 추가"
+                    >
+                      <PlusCircle size={16} aria-hidden="true" /> 스택 추가
+                    </button>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addTag();
+                        }
+                      }}
+                      className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
+                      placeholder="예: React, TypeScript, Spring Boot"
+                      aria-label="기술 스택 입력"
+                    />
+                    <button
+                      type="button"
+                      onClick={addTag}
+                      className="px-4 py-2.5 bg-[#222222] text-white rounded-lg hover:bg-black transition-colors font-medium whitespace-nowrap"
+                    >
+                      추가
+                    </button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-[#333333] text-sm font-medium rounded-full border border-gray-200"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="text-gray-400 hover:text-red-500 transition-colors"
+                          aria-label={`${tag} 제거`}
+                        >
+                          <X size={14} aria-hidden="true" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Image Section */}
                 <div className="space-y-4 pt-4 border-t border-gray-100">
                   <h3 className="text-sm font-bold text-[#4A90E2] uppercase tracking-wider">이미지 설정</h3>
@@ -246,50 +344,70 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
                     <label className="block text-sm font-medium text-[#333333] mb-2">대표 이미지</label>
                     
                     <div className="flex flex-col gap-4">
-                      <div className="flex gap-2">
-                        <div className="flex-1">
+                      <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-[#222222]">파일 업로드</p>
+                            <p className="text-xs text-[#333333]/60 mt-1">
+                              이미지 파일을 선택하면 업로드 후 경로가 자동으로 반영됩니다.
+                            </p>
+                            {uploadedFileName && (
+                              <p className="text-xs text-[#4A90E2] mt-2">
+                                업로드 선택 파일: {uploadedFileName}
+                              </p>
+                            )}
+                          </div>
                           <div className="relative">
-                            <LinkIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
-                              id="project-image-url"
-                              type="url"
-                              value={formData.image || ''}
-                              onChange={(e) => setFormData({...formData, image: e.target.value})}
-                              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
-                              placeholder="이미지 URL 입력 (https://...)"
+                              type="file"
+                              ref={fileInputRef}
+                              onChange={handleFileUpload}
+                              accept="image/*"
+                              className="hidden"
                               disabled={isUploading}
-                              aria-label="프로젝트 이미지 URL"
                             />
+                            <button
+                              type="button"
+                              onClick={handleFileButtonClick}
+                              disabled={isUploading}
+                              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#222222] text-white rounded-lg hover:bg-black transition-colors font-medium whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                              aria-label="이미지 파일 업로드"
+                            >
+                              {isUploading ? (
+                                <>
+                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  업로드 중...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload size={18} />
+                                  파일 선택 후 업로드
+                                </>
+                              )}
+                            </button>
                           </div>
                         </div>
+                      </div>
+
+                      <div>
+                        <label
+                          htmlFor="project-image-url"
+                          className="block text-xs font-bold text-[#333333]/60 mb-1"
+                        >
+                          이미지 URL 직접 입력 (선택사항)
+                        </label>
                         <div className="relative">
+                          <LinkIcon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                           <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                            accept="image/*"
-                            className="hidden"
+                            id="project-image-url"
+                            type="text"
+                            value={formData.image || ''}
+                            onChange={(e) => setFormData({...formData, image: e.target.value})}
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-[#4A90E2] outline-none"
+                            placeholder="필요할 때만 이미지 URL 입력 (https://...)"
                             disabled={isUploading}
+                            aria-label="프로젝트 이미지 URL"
                           />
-                          <button
-                            type="button"
-                            onClick={handleFileButtonClick}
-                            disabled={isUploading}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-[#333333] rounded-lg hover:bg-gray-200 transition-colors font-medium whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                            aria-label="이미지 파일 업로드"
-                          >
-                            {isUploading ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                                업로드 중...
-                              </>
-                            ) : (
-                              <>
-                                <Upload size={18} />
-                                파일 업로드
-                              </>
-                            )}
-                          </button>
                         </div>
                       </div>
 
@@ -340,7 +458,7 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
                   </div>
                   
                   <div className="space-y-4">
-                    {formData.githubLinks?.map((link, idx) => (
+                    {formData.links?.map((link, idx) => (
                       <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
                         <button
                           type="button"
@@ -413,19 +531,44 @@ const ProjectModal: React.FC<ProjectModalProps> = memo(({
                   </div>
 
                   <div className="space-y-6">
-                    {formData.qna?.map((item, idx) => (
+                    {formData.qnaList?.map((item, idx) => (
                       <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
-                        <button
-                          type="button"
-                          onClick={() => onRemoveQna(idx)}
-                          className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                          title="질문 삭제"
-                          aria-label={`Q&A ${idx + 1} 삭제`}
-                        >
-                          <X size={16} aria-hidden="true" />
-                        </button>
+                        <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            type="button"
+                            onClick={() => onMoveQnaUp(idx)}
+                            disabled={idx === 0}
+                            className="text-gray-400 hover:text-[#4A90E2] disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="위로 이동"
+                            aria-label={`Q&A ${idx + 1} 위로 이동`}
+                          >
+                            <ArrowUp size={16} aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onMoveQnaDown(idx)}
+                            disabled={idx === (formData.qnaList?.length || 0) - 1}
+                            className="text-gray-400 hover:text-[#4A90E2] disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="아래로 이동"
+                            aria-label={`Q&A ${idx + 1} 아래로 이동`}
+                          >
+                            <ArrowDown size={16} aria-hidden="true" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onRemoveQna(idx)}
+                            className="text-gray-400 hover:text-red-500"
+                            title="질문 삭제"
+                            aria-label={`Q&A ${idx + 1} 삭제`}
+                          >
+                            <X size={16} aria-hidden="true" />
+                          </button>
+                        </div>
                         
                         <div className="space-y-3">
+                          <div className="text-xs font-bold text-[#333333]/40 uppercase tracking-wider">
+                            질문 {idx + 1}
+                          </div>
                           <div>
                             <label className="block text-xs font-bold text-[#333333]/60 mb-1">질문 (Question)</label>
                             <input 
